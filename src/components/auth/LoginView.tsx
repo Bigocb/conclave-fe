@@ -22,9 +22,21 @@ export default function LoginView() {
         password
       });
       
-      // api.post already unwraps .data.data, so response IS the T object
+      if (!response) {
+        throw new Error('Server returned an empty response');
+      }
+
+      // Defensive check to prevent "undefined is not an object" crash
+      const orgId = response.orgId || 'unknown';
+      const token = response.token;
+      const user = response.user;
+
+      if (!token) {
+        throw new Error('Authentication successful but no token was provided');
+      }
+
       const syntheticOrg = { 
-        id: response.orgId, 
+        id: orgId, 
         name: 'My Organization',
         slug: 'my-org',
         policies: {
@@ -32,7 +44,7 @@ export default function LoginView() {
         }
       };
       
-      setAuth(response.token, response.user, undefined, undefined, syntheticOrg);
+      setAuth(token, user, undefined, undefined, syntheticOrg);
       window.location.reload(); 
     } catch (err: any) {
       console.error('[Login] Error:', err);
