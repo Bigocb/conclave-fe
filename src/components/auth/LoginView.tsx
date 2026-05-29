@@ -17,15 +17,22 @@ export default function LoginView() {
     setError(null);
 
     try {
+      // The API returns a ConclaveResponse wrapper: { status: 'success', data: { token, user, orgId }, meta: ... }
       const response = await api.post<{ token: string, user: any, orgId: string }>('/v1/auth/login', {
         email,
         password
       });
       
-      // Backend returns { token, user, orgId }
-      // satisfy Org type with required policy object
+      // Use response.data if the helper doesn't already strip the wrapper, 
+      // or handle the case where the helper returns the raw response.
+      const authData = response.data || response;
+      
+      if (!authData.token) {
+        throw new Error('No token returned from server');
+      }
+
       const syntheticOrg = { 
-        id: response.orgId, 
+        id: authData.orgId, 
         name: 'My Organization',
         slug: 'my-org',
         policies: {
@@ -33,10 +40,11 @@ export default function LoginView() {
         }
       };
       
-      setAuth(response.token, response.user, undefined, undefined, syntheticOrg);
+      setAuth(authData.token, authData.user, undefined, undefined, syntheticOrg);
       window.location.reload(); 
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Authentication failed. Please check your credentials.');
+      console.error('[Login] Error:', err);
+      setError(err.response?.data?.message || err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
