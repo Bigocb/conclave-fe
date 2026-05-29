@@ -23,9 +23,15 @@ export default function LoginView() {
       });
       
       // Backend returns { token, user, orgId }
-      // We need a valid Org object for setAuth, but we only have orgId.
-      // For now, we'll pass a synthetic Org object or just the ID as the org.
-      const syntheticOrg = { id: response.orgId, name: 'My Organization' };
+      // satisfy Org type with required policy object
+      const syntheticOrg = { 
+        id: response.orgId, 
+        name: 'My Organization',
+        slug: 'my-org',
+        policies: {
+          min_reviews_required: 0
+        }
+      };
       
       setAuth(response.token, response.user, undefined, undefined, syntheticOrg);
       window.location.reload(); 
