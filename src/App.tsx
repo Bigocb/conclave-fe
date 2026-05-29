@@ -124,7 +124,7 @@ export default function App() {
               <div className={`w-2 h-2 rounded-full ${status === 'connected' ? 'bg-aviation-accent animate-ping' : 'bg-red-500 animate-pulse'}`} />
               <span className="text-[10px] mono text-aviation-accent uppercase">
                 Pulse {status}
-              </span
+              </span>
             </div>
             <div className="w-8 h-8 rounded-full bg-slate-700 border border-aviation-border overflow-hidden" />
           </div>
@@ -140,7 +140,7 @@ export default function App() {
                   <div className="text-xs mono text-slate-500 mb-2">Current Org Context</div>
                 </div>
               </div>
-              <div className="h-64 bg-aviation-panel border border-aviation-border rounded-lg p- la-6">
+              <div className="h-64 bg-aviation-panel border border-aviation-border rounded-lg p-6">
                 <h2 className="text-sm mono text-slate-400 mb-4 uppercase">System Health</h2>
                 <div className="space-y-3">
                   <div className="flex justify-between text-xs mono">
