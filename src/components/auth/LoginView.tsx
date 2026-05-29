@@ -17,14 +17,17 @@ export default function LoginView() {
     setError(null);
 
     try {
-      const response = await api.post<{ token: string, user: any, org: any }>('/v1/auth/login', {
+      const response = await api.post<{ token: string, user: any, orgId: string }>('/v1/auth/login', {
         email,
         password
       });
       
-      // Fix type mismatch: setAuth expects (token, user, agent?, principal?, org?)
-      // User is the primary identity here.
-      setAuth(response.token, response.user, undefined, undefined, response.org);
+      // Backend returns { token, user, orgId }
+      // We need a valid Org object for setAuth, but we only have orgId.
+      // For now, we'll pass a synthetic Org object or just the ID as the org.
+      const syntheticOrg = { id: response.orgId, name: 'My Organization' };
+      
+      setAuth(response.token, response.user, undefined, undefined, syntheticOrg);
       window.location.reload(); 
     } catch (err: any) {
       setError(err.response?.data?.message || 'Authentication failed. Please check your credentials.');
