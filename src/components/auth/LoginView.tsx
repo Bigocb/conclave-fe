@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { api } from '../../api/client';
-import { Card, Input, Button } from '../ui/core';
+import { Input, Button } from '../ui/core';
 import { Lock, Mail } from 'lucide-react';
 
 export default function LoginView() {
@@ -17,14 +17,14 @@ export default function LoginView() {
     setError(null);
 
     try {
-      // We assume the backend has a /v1/auth/login endpoint based on standard patterns
       const response = await api.post<{ token: string, user: any, org: any }>('/v1/auth/login', {
         email,
         password
       });
       
-      // The response data usually contains the session token and user info
-      setAuth(response.token, response.user, null, null, response.org);
+      // Fix type mismatch: setAuth expects (token, user, agent?, principal?, org?)
+      // User is the primary identity here.
+      setAuth(response.token, response.user, undefined, undefined, response.org);
       window.location.reload(); 
     } catch (err: any) {
       setError(err.response?.data?.message || 'Authentication failed. Please check your credentials.');
@@ -53,7 +53,7 @@ export default function LoginView() {
                 name="email" 
                 type="email" 
                 value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
+                onChange={(e: any) => setEmail(e.target.value)} 
                 required 
                 className="pl-10"
               />
@@ -65,7 +65,7 @@ export default function LoginView() {
                 name="password" 
                 type="password" 
                 value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
+                onChange={(e: any) => setPassword(e.target.value)} 
                 required 
                 className="pl-10"
               />

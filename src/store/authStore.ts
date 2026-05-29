@@ -8,7 +8,7 @@ interface AuthState {
   principal: Principal | null;
   org: Org | null;
   isAuthenticated: boolean;
-  setAuth: (token: string, user: User, agent?: Agent, principal?: Principal, org?: Org) => void;
+  setAuth: (token: string, user: User, agent?: Agent | null, principal?: Principal | null, org?: Org | null) => void;
   clearAuth: () => void;
 }
 
