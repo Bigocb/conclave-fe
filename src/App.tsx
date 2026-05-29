@@ -91,9 +91,9 @@ export default function App() {
             <span className="text-slate-500 group-hover:text-slate-300 transition-colors">Worker Load</span>
             <span className="text-amber-500 font-bold bg-amber-500/5 px-2 py-0.5 rounded border border-amber-500/20 uppercase">Moderate</span>
           </div>
-        </div_ la laL
-      </div_ la la
-    </div_ la la
+        </div>
+      </div>
+    </div>
   );
 
   const renderView = () => {
