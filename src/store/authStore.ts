@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Agent, Principal, Org } from '../types/api';
+import type { Agent, Principal, Org } from '../types/api';
 
 interface AuthState {
   token: string | null;

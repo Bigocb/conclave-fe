@@ -2,7 +2,6 @@ import React from 'react'
 import { 
   LayoutDashboard, 
   Users, 
-  Settings, 
   Activity, 
   ShieldAlert, 
   UserCircle,
@@ -15,7 +14,14 @@ import AgentFactory from './components/factory/AgentFactory'
 import PrincipalsView from './components/principals/PrincipalsView'
 import VaultView from './components/vault/VaultView'
 
-const SidebarItem = ({ icon: Icon, label, active = false, onClick }) => (
+interface SidebarItemProps {
+  icon: React.ElementType;
+  label: string;
+  active?: boolean;
+  onClick: () => void;
+}
+
+const SidebarItem = ({ icon: Icon, label, active = false, onClick }: SidebarItemProps) => (
   <div 
     onClick={onClick}
     className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 
@@ -30,8 +36,8 @@ const SidebarItem = ({ icon: Icon, label, active = false, onClick }) => (
 
 export default function App() {
   const { isAuthenticated, isLoading, logout } = useAuth();
-  const { agent, principal, org } = useAuthStore();
-  const { status, eventCount } = usePulse();
+  const { agent, org } = useAuthStore();
+  const { status } = usePulse();
   const [activeView, setActiveView] = React.useState('dashboard')
 
   if (isLoading) {
@@ -58,7 +64,7 @@ export default function App() {
               className="bg-black border border-aviation-border p-2 text-xs mono text-aviation-accent focus:outline-none focus:border-aviation-accent"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
-                  useAuthStore.getState().setAuth(e.currentTarget.value, {}, {} as any, {} as any);
+                  useAuthStore.getState().setAuth(e.currentTarget.value, {} as any, {} as any, {} as any);
                   window.location.reload();
                 }
               }}
@@ -72,7 +78,6 @@ export default function App() {
 
   return (
     <div className="flex h-screen w-full bg-aviation-bg text-slate-200 overflow-hidden">
-      {/* Left Sidebar */}
       <aside className="w-64 bg-aviation-panel border-r border-aviation-border flex flex-col">
         <div className="p-6 border-b border-aviation-border">
           <div className="flex items-center gap-2">
@@ -126,10 +131,9 @@ export default function App() {
             <LogOut size={14} />
             <span style={{fontSize: '10px'}}>DISCONNECT</span>
           </button>
-        </div}
+        </div>
       </aside>
 
-      {/* Main Window */}
       <main className="flex-1 flex flex-col overflow-hidden">
         <header className="h-16 border-b border-aviation-border flex items-center justify-between px-8 bg-aviation-panel">
           <div className="text-xs mono text-slate-400">
@@ -154,7 +158,7 @@ export default function App() {
                 <div className="flex items-end gap-4">
                   <div className="text-5xl font-bold mono text-white">{org?.name || 'Loading...'}</div>
                   <div className="text-xs mono text-slate-500 mb-2">Current Org Context</div>
-                </div}
+                </div>
               </div>
               <div className="h-64 bg-aviation-panel border border-aviation-border rounded-lg p-6">
                 <h2 className="text-sm mono text-slate-400 mb-4 uppercase">System Health</h2>
@@ -165,28 +169,20 @@ export default function App() {
                   </div>
                   <div className="flex justify-between text-xs mono">
                     <span className="text-slate-500">Pulse Stream</span>
-                    <span className="text-aviation-accent">{status.toUpperCase()}</span>
+                    <span className="text-aviation-accent">{status?.toUpperCase()}</span>
                   </div>
                   <div className="flex justify-between text-xs mono">
                     <span className="text-slate-500">Worker Load</span>
                     <span className="text-aviation-warning">MODERATE</span>
                   </div>
-                </div}
+                </div>
               </div>
             </div>
           )}
           
-          {activeView === 'factory' && (
-            <AgentFactory />
-          )}
-
-          {activeView === 'principals' && (
-            <PrincipalsView />
-          )}
-
-          {activeView === 'vault' && (
-            <VaultView />
-          )}
+          {activeView === 'factory' && <AgentFactory />}
+          {activeView === 'principals' && <PrincipalsView />}
+          {activeView === 'vault' && <VaultView />}
 
           {activeView !== 'dashboard' && activeView !== 'factory' && activeView !== 'principals' && activeView !== 'vault' && (
             <div className="h-full flex items-center justify-center border-2 border-dashed border-aviation-border rounded-xl">

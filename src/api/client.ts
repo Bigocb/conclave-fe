@@ -1,83 +1,39 @@
-import axios, { AxiosInstance, AxiosError } from 'axios';
-import { ConclaveResponse } from '../types/api';
+import axios from 'axios';
+import type { AxiosInstance } from 'axios';
+import type { ConclaveResponse } from '../types/api';
 
-class ConclaveApiClient {
-  private instance: AxiosInstance;
+export class ConclaveApiClient {
+  instance: AxiosInstance;
 
-  constructor(baseURL: string, token?: string) {
+  constructor(baseUrl: string) {
     this.instance = axios.create({
-      baseURL,
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-      },
+      baseURL: baseUrl,
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 
-  public setToken(token: string) {
+  setToken(token: string) {
     this.instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
 
-  public async get<T>(url: string, params?: any): Promise<T> {
-    try {
-      const response = await this.instance.get<ConclaveResponse<T>>(url, { params });
-      if (response.data.status === 'success') {
-        return response.data.data;
-      }
-      throw new Error(`API Error: ${response.data.error?.message || 'Unknown error'}`);
-    } catch (error) {
-      this.handleError(error);
-      throw error;
-    }
+  async get<T>(url: string, params?: any): Promise<T> {
+    const response = await this.instance.get<ConclaveResponse<T>>(url, { params });
+    return response.data.data;
   }
 
-  public async post<T, R = any>(url: string, data: T): Promise<R> {
-    try {
-      const response = await this.instance.post<ConclaveResponse<R>>(url, data);
-      if (response.data.status === 'success') {
-        return response.data.data;
-      }
-      throw new Error(`API Error: ${response.data.error?.message || 'Unknown error'}`);
-    } catch (error) {
-      this.handleError(error);
-      throw error;
-    }
+  async post<T = any>(url: string, data?: any): Promise<T> {
+    const response = await this.instance.post<ConclaveResponse<T>>(url, data);
+    return response.data.data;
   }
 
-  public async patch<T, R = any>(url: string, data: T): Promise<R> {
-    try {
-      const response = await this.instance.patch<ConclaveResponse<R>>(url, data);
-      if (response.data.status === 'success') {
-        return response.data.data;
-      }
-      throw new Error(`API Error: ${response.data.error?.message || 'Unknown error'}`);
-    } catch (error) {
-      this.handleError(error);
-      throw error;
-    }
+  async patch<T = any>(url: string, data?: any): Promise<T> {
+    const response = await this.instance.patch<ConclaveResponse<T>>(url, data);
+    return response.data.data;
   }
 
-  public async delete<R = any>(url: string): Promise<R> {
-    try {
-      const response = await this.instance.delete<ConclaveResponse<R>>(url);
-      if (response.data.status === 'success') {
-        return response.data.data;
-      }
-      throw new Error(`API Error: ${response.data.error?.message || 'Unknown error'}`);
-    } catch (error) {
-      this.handleError(error);
-      throw error;
-    }
-  }
-
-  private handleError(error: any) {
-    if (axios.isAxiosError(error)) {
-      const axiosError = error as AxiosError<ConclaveResponse<any>>;
-      const message = axiosError.response?.data?.error?.message || axiosError.message;
-      console.error(`[API Error] ${message}`);
-    } else {
-      console.error(`[Unexpected Error]`, error);
-    }
+  async delete<T = any>(url: string): Promise<T> {
+    const response = await this.instance.delete<ConclaveResponse<T>>(url);
+    return response.data.data;
   }
 }
 

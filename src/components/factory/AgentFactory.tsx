@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
-import { Agent } from '../../types/api';
+import type { Agent } from '../../types/api';
 import { Card, Input, Button, Modal } from '../ui/core';
-import { Plus, Trash2, Edit3, ShieldCheck } from 'lucide-react';
+import { Plus, Trash2, Edit3 } from 'lucide-react';
 
 export default function AgentFactory() {
   const queryClient = useQueryClient();
@@ -45,15 +45,15 @@ export default function AgentFactory() {
         <div>
           <h1 className="text-xl font-bold mono text-white uppercase tracking-tighter">Agent Factory</h1>
           <p className="text-xs mono text-slate-500">Provision and manage ephemeral compute nodes</p>
-        </div}
+        </div>
         <Button 
           onClick={() => { setEditAgent(null); setIsModalOpen(true); }}
           className="flex items-center gap-2"
         >
           <Plus size={16} /> 
-          <span>REGISTER AGENT</span>
+          <span className="text-xs mono">REGISTER AGENT</span>
         </Button>
-      </div}
+      </div>
 
       {isLoading ? (
         <div className="h-64 flex items-center justify-center border border-aviation-border rounded-lg bg-aviation-panel">
@@ -61,18 +61,18 @@ export default function AgentFactory() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {agents?.map((agent) => (
+          {agents?.map((agent: any) => (
             <Card key={agent.id} className="p-4 group hover:border-aviation-accent/50 transition-colors">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-black border border-aviation-border rounded flex items-center justify-center text-aviation-accent mono text-xs font-bold">
-                    {agent.type[0].toUpperCase()}
-                  </div}
+                    {agent.type ? agent.type[0].toUpperCase() : 'U'}
+                  </div>
                   <div>
                     <h3 className="text-sm font-bold mono text-white truncate max-w-xs">{agent.name}</h3>
                     <p className="text-[10px] mono text-slate-500 truncate max-w-xs">{agent.id}</p>
                   </div>
-                </div}
+                </div>
                 <div className="flex gap-2">
                   <Button 
                     variant="secondary" 
@@ -88,8 +88,8 @@ export default function AgentFactory() {
                   >
                     <Trash2 size={14} />
                   </Button>
-                </div}
-              </div}
+                </div>
+              </div>
               
               <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-aviation-border">
                 <div>
@@ -97,14 +97,14 @@ export default function AgentFactory() {
                   <p className="text-xs mono text-slate-300 truncate">
                     {agent.provider || 'custom'} / {agent.model || 'n/a'}
                   </p>
-                </div}
+                </div>
                 <div className="text-right">
                   <p className="text-[10px] mono text-slate-600 uppercase tracking-widest">Status</p>
                   <p className="text-xs mono text-aviation-accent flex items-center justify-end gap-1">
                     <div className="w-1.5 h-1.5 bg-aviation-accent rounded-full" />
-                    {agent.status.toUpperCase()}
+                    {agent.status ? agent.status.toUpperCase() : 'UNKNOWN'}
                   </p>
-                </div}
+                </div>
               </div>
             </Card>
           ))}
@@ -132,20 +132,20 @@ export default function AgentFactory() {
         >
           <div className="col-span-2">
             <Input label="Agent Name" name="name" defaultValue={editAgent?.name} required />
-          </div}
+          </div>
           <div className="col-span-1">
             <Input 
               label="Type" 
               name="type" 
               defaultValue={editAgent?.type || 'llm'} 
             />
-          </div}
+          </div>
           <div className="col-span-1">
             <Input label="Provider" name="provider" defaultValue={editAgent?.provider} />
-          </div}
+          </div>
           <div className="col-span-2">
             <Input label="Model Identifier" name="model" defaultValue={editAgent?.model} />
-          </div}
+          </div>
           <div className="col-span-2">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs mono text-slate-500 uppercase tracking-wider">System Instructions</label>
@@ -155,7 +155,7 @@ export default function AgentFactory() {
                 className="bg-black border border-aviation-border p-2 text-xs mono text-white focus:outline-none focus:border-aviation-accent transition-colors w-full"
                 defaultValue={editAgent?.instructions}
               />
-            </div}
+            </div>
           </div>
           <div className="col-span-2 flex justify-end gap-3 mt-4">
             <Button variant="secondary" onClick={() => setIsModalOpen(false)}>CANCEL</Button>
