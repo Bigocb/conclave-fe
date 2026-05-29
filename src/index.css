@@ -11,3 +11,13 @@
 .border-aviation-border { border-color: var(--conclave-border) !important; }
 .text-aviation-accent { color: var(--conclave-accent) !important; }
 .bg-aviation-accent { background-color: var(--conclave-accent) !important; }
+\n
+@media (max-width: 768px) {
+  .desktop-sidebar {
+    display: none !important;
+  }
+  .main-content {
+    margin-left: 0 !important;
+    padding-bottom: 64px !important; /* Make space for the bottom nav */
+  }
+}

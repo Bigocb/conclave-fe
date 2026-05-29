@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { MobileNav } from './components/ui/MobileNav';\nimport React, { useState, useEffect } from 'react';
 import { LayoutDashboard, Users, Activity, ShieldAlert, UserCircle, LogOut } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useAuthStore } from './store/authStore';
@@ -107,6 +107,6 @@ export default function App() {
           {renderView()}
         </section>
       </main>
-    </div>>
+    <MobileNav currentView={currentView} setView={setView} /></div>>
   );
 }
