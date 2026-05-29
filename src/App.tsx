@@ -13,6 +13,7 @@ import { usePulse } from './hooks/usePulse'
 import AgentFactory from './components/factory/AgentFactory'
 import PrincipalsView from './components/principals/PrincipalsView'
 import VaultView from './components/vault/VaultView'
+import LoginView from './components/auth/LoginView'
 
 interface SidebarItemProps {
   icon: React.ElementType;
@@ -36,7 +37,7 @@ const SidebarItem = ({ icon: Icon, label, active = false, onClick }: SidebarItem
 
 export default function App() {
   const { isAuthenticated, isLoading, logout } = useAuth();
-  const { agent, org } = useAuthStore();
+  const { agent, org, user } = useAuthStore();
   const { status } = usePulse();
   const [activeView, setActiveView] = React.useState('dashboard')
 
@@ -52,28 +53,7 @@ export default function App() {
   }
 
   if (!isAuthenticated) {
-    return (
-      <div className="h-screen w-full bg-aviation-bg flex items-center justify-center p-8">
-        <div className="max-w-md w-full bg-aviation-panel border border-aviation-border p-8 rounded-lg noc-glow text-center">
-          <h2 className="text-xl font-bold mono text-white mb-2">ACCESS DENIED</h2>
-          <p className="text-slate-400 text-sm mono mb-6">Valid Agent Token required for Conclave Network access</p>
-          <div className="flex flex-col gap-3">
-            <input 
-              type="text" 
-              placeholder="clv_xxxxxxxx..." 
-              className="bg-black border border-aviation-border p-2 text-xs mono text-aviation-accent focus:outline-none focus:border-aviation-accent"
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  useAuthStore.getState().setAuth(e.currentTarget.value, {} as any, {} as any, {} as any);
-                  window.location.reload();
-                }
-              }}
-            />
-            <p className="text-[10px] text-slate-600 mono uppercase">Press Enter to authorize</p>
-          </div>
-        </div>
-      </div>
-    )
+    return <LoginView />;
   }
 
   return (
@@ -122,7 +102,7 @@ export default function App() {
         <div className="p-4 border-t border-aviation-border flex flex-col gap-4">
           <div className="flex items-center gap-3 px-2 py-1 text-xs mono text-slate-400">
             <div className="w-2 h-2 bg-aviation-accent rounded-full" />
-            <span className="truncate">{agent?.name || 'Unknown Agent'}</span>
+            <span className="truncate">{user?.name || agent?.name || 'Unknown Identity'}</span>
           </div>
           <button 
             onClick={logout}
@@ -144,7 +124,7 @@ export default function App() {
               <div className={`w-2 h-2 rounded-full ${status === 'connected' ? 'bg-aviation-accent animate-ping' : 'bg-red-500 animate-pulse'}`} />
               <span className="text-[10px] mono text-aviation-accent uppercase">
                 Pulse {status}
-              </span>
+              </span
             </div>
             <div className="w-8 h-8 rounded-full bg-slate-700 border border-aviation-border overflow-hidden" />
           </div>
@@ -160,7 +140,7 @@ export default function App() {
                   <div className="text-xs mono text-slate-500 mb-2">Current Org Context</div>
                 </div>
               </div>
-              <div className="h-64 bg-aviation-panel border border-aviation-border rounded-lg p-6">
+              <div className="h-64 bg-aviation-panel border border-aviation-border rounded-lg p- la-6">
                 <h2 className="text-sm mono text-slate-400 mb-4 uppercase">System Health</h2>
                 <div className="space-y-3">
                   <div className="flex justify-between text-xs mono">

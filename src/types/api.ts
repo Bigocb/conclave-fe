@@ -49,6 +49,14 @@ export interface Principal {
   reputation: number;
 }
 
+export interface User {
+  id: string;
+  email: string;
+  name?: string;
+  org_id: string;
+  isAdmin: boolean;
+}
+
 export interface Task {
   id: string;
   task_description: string;
