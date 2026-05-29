@@ -6,10 +6,25 @@ export class ConclaveApiClient {
   instance: AxiosInstance;
   private currentOrgId: string | null = null;
 
+  
   constructor(baseUrl: string) {
     this.instance = axios.create({
       baseURL: baseUrl,
       headers: { 'Content-Type': 'application/json' }
+    });
+
+    this.instance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          localStorage.removeItem('clv_token');
+          window.location.href = '/'; 
+        }
+        return Promise.reject(error);
+      }
+    );
+  }
+
     });
   }
 

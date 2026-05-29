@@ -30,15 +30,15 @@ export default function LoginView() {
 
       if (!token) throw new Error('Authentication successful but no token was provided');
 
-      const syntheticOrg = { 
-        id: orgId, 
-        name: 'My Organization',
-        slug: 'my-org',
-        policies: { min_reviews_required: 0 }
-      };
-      
       api.setOrgId(orgId);
-      setAuth(token, user, undefined, undefined, syntheticOrg);
+      try {
+        const orgData = await api.get('/v1/orgs/' + orgId);
+        setAuth(token, user, undefined, undefined, orgData);
+      } catch (err) {
+        console.error('[Login] Failed to fetch org details:', err);
+        // Fallback to basic org if details fail, but we still have the ID
+        setAuth(token, user, undefined, undefined, { id: orgId, name: 'Conclave Org', policies: { min_reviews_required: 0 } });
+      }
       window.location.reload(); 
     } catch (err: any) {
       console.error('[Login] Error:', err);
