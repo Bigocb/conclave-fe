@@ -19,10 +19,10 @@ interface SidebarItemProps {
 const SidebarItem = ({ icon: Icon, label, active = false, onClick }: SidebarItemProps) => (
   <div 
     onClick={onClick} 
-    className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-150 ${active ? 'bg-aviation-accent/10 text-aviation-accent border-r-2 border-aviation-accent shadow-[inset_0_0_10px_rgba(0,217,139,0.1)]' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}
+    className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 rounded-lg ${active ? 'bg-aviation-accent/10 text-aviation-accent font-semibold shadow-sm' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}
   >
-    <Icon size={18} className={active ? 'animate-pulse' : ''} />
-    <span className="text-xs font-bold mono tracking-wider uppercase">{label}</span>
+    <Icon size={18} className={active ? 'text-aviation-accent' : ''} />
+    <span className="text-sm tracking-tight">{label}</span>
   </div>
 );
 
@@ -45,7 +45,7 @@ export default function App() {
       <div className="h-screen w-full bg-aviation-bg flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-2 border-aviation-accent border-t-transparent rounded-full animate-spin" />
-          <span className="text-[9px] mono text-slate-500 uppercase tracking-[0.3em] font-bold">Authenticating Agent...</span>
+          <span className="text-[10px] mono text-slate-500 uppercase tracking-widest font-bold">Authenticating...</span>
         </div>
       </div>
     );
@@ -56,40 +56,37 @@ export default function App() {
   }
 
   const views = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'dashboard', label: 'Fleet Overview', icon: LayoutDashboard },
     { id: 'factory', label: 'Agent Factory', icon: Users },
     { id: 'principals', label: 'Principals', icon: UserCircle },
-    { id: 'feed', label: 'Pulse Feed', icon: Activity },
-    { id: 'vault', label: 'Vault', icon: ShieldAlert },
+    { id: 'feed', label: 'Task Feed', icon: Activity },
+    { id: 'vault', label: 'Trust Vault', icon: ShieldAlert },
   ];
 
   const renderDashboard = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="col-span-1 lg:col-span-2 h-auto lg:h-64 bg-aviation-panel border border-aviation-border rounded-none p-6 noc-glow relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-2">
-          <span className="text-[8px] mono text-slate-600 uppercase tracking-widest font-bold">Org Context // active</span>
-        </div>
-        <h2 className="text-xs mono text-slate-500 mb-6 uppercase tracking-widest font-bold">Organization Overview</h2>
-        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
-          <div className="text-4xl md:text-6xl font-black mono text-white tracking-tighter italic uppercase">{org?.name || org?.id || 'TheOrg'}</div>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="col-span-1 lg:col-span-2 p-8 bg-aviation-panel border border-aviation-border rounded-2xl relative">
+        <h2 className="text-lg font-bold text-white mb-6">Organization Overview</h2>
+        <div className="flex flex-col md:flex-row md:items-center gap-6">
+          <div className="text-4xl md:text-6xl font-extrabold text-white tracking-tight">{org?.name || org?.id || 'TheOrg'}</div>
           <div className="hidden md:block h-12 w-px bg-aviation-border" />
-          <div className="text-xs mono text-slate-500 uppercase tracking-widest leading-relaxed opacity-70">Secure Node <br /> Active Cluster</div>
+          <div className="text-sm text-slate-400 uppercase tracking-wide leading-relaxed">Secure Node <br /> Active Cluster</div>
         </div>
       </div>
-      <div className="h-auto lg:h-64 bg-aviation-panel border border-aviation-border rounded-none p-6 shadow-sm">
-        <h2 className="text-xs mono text-slate-500 mb-4 uppercase tracking-widest font-bold">System Health</h2>
-        <div className="space-y-3">
-          <div className="flex justify-between items-center text-xs mono group">
-            <span className="text-slate-500 group-hover:text-slate-300 transition-colors">API Latency</span>
-            <span className="text-aviation-accent font-bold bg-aviation-accent/5 px-2 py-0.5 rounded border border-aviation-accent/20">14ms</span>
+      <div className="p-8 bg-aviation-panel border border-aviation-border rounded-2xl">
+        <h2 className="text-lg font-bold text-white mb-6">System Health</h2>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center text-sm group">
+            <span className="text-slate-400 group-hover:text-slate-200 transition-colors">API Latency</span>
+            <span className="text-aviation-accent font-bold bg-aviation-accent/10 px-3 py-1 rounded-full border border-aviation-accent/20">14ms</span>
           </div>
-          <div className="flex justify-between items-center text-xs mono group">
-            <span className="text-slate-500 group-hover:text-slate-300 transition-colors">Pulse Stream</span>
-            <span className={`text-xs font-bold px-2 py-0.5 rounded border ${status === 'connected' ? 'text-aviation-accent bg-aviation-accent/5 border-aviation-accent/20' : 'text-red-500 bg-red-500/5 border-red-500/20'} uppercase`}>{status}</span>
+          <div className="flex justify-between items-center text-sm group">
+            <span className="text-slate-400 group-hover:text-slate-200 transition-colors">Pulse Stream</span>
+            <span className={`text-xs font-bold px-3 py-1 rounded-full border ${status === 'connected' ? 'text-aviation-accent bg-aviation-accent/10 border-aviation-accent/20' : 'text-red-400 bg-red-400/10 border-red-400/20'} uppercase`}>{status}</span>
           </div>
-          <div className="flex justify-between items-center text-xs mono group">
-            <span className="text-slate-500 group-hover:text-slate-300 transition-colors">Worker Load</span>
-            <span className="text-amber-500 font-bold bg-amber-500/5 px-2 py-0.5 rounded border border-amber-500/20 uppercase">Moderate</span>
+          <div className="flex justify-between items-center text-sm group">
+            <span className="text-slate-400 group-hover:text-slate-200 transition-colors">Worker Load</span>
+            <span className="text-amber-400 font-bold bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20 uppercase">Moderate</span>
           </div>
         </div>
       </div>
@@ -102,12 +99,9 @@ export default function App() {
     if (activeView === 'principals') return <PrincipalsView />;
     if (activeView === 'vault') return <VaultView />;
     return (
-      <div className="h-full flex items-center justify-center border border-dashed border-aviation-border rounded-none bg-black/20">
+      <div className="h-full flex items-center justify-center border border-dashed border-aviation-border rounded-2xl bg-black/20">
         <div className="text-center">
-          <p className="text-slate-500 mono text-[10px] uppercase italic tracking-widest">Module {activeView} loading...</p>
-          <div className="mt-4 w-48 h-1 bg-aviation-border overflow-hidden rounded-full">
-            <div className="h-full bg-aviation-accent animate-progress" style={{ width: '40%' }} />
-          </div>
+          <p className="text-slate-500 mono text-xs uppercase italic tracking-widest">Module {activeView} loading...</p>
         </div>
       </div>
     );
@@ -116,24 +110,24 @@ export default function App() {
   return (
     <div className="flex h-screen w-full bg-aviation-bg text-slate-200 overflow-hidden">
       {!isMobile && (
-        <aside className="w-64 bg-aviation-panel border-r border-aviation-border flex flex-col shadow-2xl">
-          <div className="p-6 border-b border-aviation-border bg-black/40">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-aviation-accent rounded-full animate-pulse" />
-              <h1 className="text-sm font-black mono tracking-tighter text-white uppercase">Conclave <span className="text-aviation-accent">v2</span></h1>
+        <aside className="w-64 bg-aviation-panel border-r border-aviation-border flex flex-col shadow-xl">
+          <div className="p-6 border-b border-aviation-border bg-black/20">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-aviation-accent rounded flex items-center justify-center text-black font-bold text-xs">C</div>
+              <span className="font-bold text-lg tracking-tight text-white">Conclave</span>
             </div>
           </div>
-          <nav className="flex-1 py-6">
+          <nav className="flex-1 py-6 px-3 space-y-1">
             {views.map(v => (<SidebarItem key={v.id} icon={v.icon} label={v.label} active={activeView === v.id} onClick={() => setActiveView(v.id)} />))}
           </nav>
-          <div className="p-4 border-t border-aviation-border flex flex-col gap-4 bg-black/40">
-            <div className="flex items-center gap-3 px-2 py-1 text-xs mono text-slate-400 bg-black/60 rounded border border-aviation-border">
+          <div className="p-4 border-t border-aviation-border flex flex-col gap-4 bg-black/20">
+            <div className="p-3 bg-white/5 rounded-xl border border-white/10 flex items-center gap-3">
               <div className="w-2 h-2 bg-aviation-accent rounded-full" />
-              <span className="truncate font-bold">{user?.name || agent?.name || 'Unknown Identity'}</span>
+              <span className="truncate text-xs mono font-bold text-slate-300">{user?.name || agent?.name || 'Unknown Identity'}</span>
             </div>
-            <button onClick={logout} className="flex items-center gap-3 px-4 py-2 text-xs mono text-slate-500 hover:text-red-400 transition-all duration-200">
-              <LogOut size={14} />
-              <span className="uppercase tracking-widest text-[9px] font-bold">Disconnect</span>
+            <button onClick={logout} className="flex items-center gap-3 px-4 py-2 text-sm text-slate-500 hover:text-white transition-all duration-200 group">
+              <LogOut size={16} className="group-hover:text-white transition-colors" />
+              <span className="uppercase tracking-widest text-[10px] font-bold">Logout</span>
             </button>
           </div>
         </aside>
@@ -144,21 +138,21 @@ export default function App() {
       )}
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
-        <header className="h-16 border-b border-aviation-border flex items-center justify-between px-4 md:px-8 bg-aviation-panel shadow-md">
-          <div className="text-xs mono text-slate-500 uppercase tracking-[0.3em] font-bold">System // {activeView}</div>
-          <div className="flex items-center gap-2 md:gap-4">
-            <div className="flex items-center gap-2 px-2 md:px-3 py-1 bg-black/60 rounded border border-aviation-border">
+        <header className="h-16 border-b border-aviation-border flex items-center justify-between px-8 bg-aviation-panel shadow-sm">
+          <div className="text-xs mono text-slate-500 uppercase tracking-widest font-bold">System // {activeView}</div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-3 py-1 bg-black/40 rounded-full border border-aviation-border">
               <div className={`w-2 h-2 rounded-full ${status === 'connected' ? 'bg-aviation-accent animate-ping' : 'bg-red-500 animate-pulse'}`} />
-              <span className="text-[9px] md:text-[10px] mono text-aviation-accent uppercase font-bold tracking-tighter">Pulse {status}</span>
+              <span className="text-[10px] mono text-aviation-accent uppercase font-bold tracking-tighter">Pulse {status}</span>
             </div>
             {isMobile && (
-              <button onClick={logout} className="md:hidden p-2 text-slate-500 hover:text-red-400 transition-colors">
+              <button onClick={logout} className="md:hidden p-2 text-slate-500 hover:text-white transition-colors">
                 <LogOut size={18} />
               </button>
             )}
           </div>
         </header>
-        <section className="flex-1 p-4 md:p-8 overflow-auto bg-aviation-bg pb-20 md:pb-8">
+        <section className="flex-1 p-8 overflow-auto bg-aviation-bg pb-20 md:pb-8">
           {renderView()}
         </section>
       </main>
