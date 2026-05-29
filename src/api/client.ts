@@ -16,19 +16,12 @@ export class ConclaveApiClient {
     this.instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
 
-  /**
-   * Generic unwrapper for Conclave API responses.
-   * The API usually wraps data in { status, data, meta }.
-   * However, some endpoints (like /auth/login) return the data directly.
-   */
   private unwrap<T>(response: any): T {
-    if (!response) return null;
-    // If the response has a 'status' and 'data' field, it's a wrapped ConclaveResponse
+    if (!response) return null as any;
     if (response.status && response.data !== undefined) {
-      return response.data;
+      return response.data as T;
     }
-    // Otherwise, assume it's a direct response
-    return response;
+    return response as T;
   }
 
   async get<T>(url: string, params?: any): Promise<T> {
