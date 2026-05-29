@@ -18,11 +18,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         api.setToken(token);
         
-        // Try to verify if this is an Agent token
+        // We need the orgId for most requests to work with User tokens.
+        // Let's try to get it from /v1/agents/me first (for Agents)
         try {
           const identity = await api.get<{ agent_id: string, principal_id: string, org_id: string }>('/v1/agents/me');
           
-          if (identity) {
+          if (identity && identity.org_id) {
+            api.setOrgId(identity.org_id);
             const agent = await api.get<Agent>(`/v1/agents/${identity.agent_id}`);
             const principal = await api.get<Principal>(`/v1/principals/${identity.principal_id}`);
             const org = await api.get<Org>(`/v1/orgs/${identity.org_id}`);
@@ -38,15 +40,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setAuth(token, syntheticUser, agent, principal, org);
           }
         } catch (agentError: any) {
-          // If /v1/agents/me fails, it might be a User token.
-          // We only clear auth if the error is actually a 401 Unauthorized.
           if (agentError.response?.status === 401) {
             console.log('[Auth] Token is invalid (401). Clearing session.');
             clearAuth();
           } else {
-            console.log('[Auth] Not an agent session, proceeding as user session.');
-            // We keep the token and isAuthenticated=true, but leave user/agent/org as null 
-            // until they are fetched by the dashboard/views.
+            console.log('[Auth] Not an agent session, treating as user session.');
+            // The token is kept. The OrgId will be handled by the LoginView calling api.setOrgId 
+            // or we can try to fetch the user's org if the API allows.
           }
         }
       } catch (error) {

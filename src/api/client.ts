@@ -4,6 +4,7 @@ import type { ConclaveResponse } from '../types/api';
 
 export class ConclaveApiClient {
   instance: AxiosInstance;
+  private currentOrgId: string | null = null;
 
   constructor(baseUrl: string) {
     this.instance = axios.create({
@@ -16,6 +17,15 @@ export class ConclaveApiClient {
     this.instance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
 
+  setOrgId(orgId: string | null) {
+    this.currentOrgId = orgId;
+    if (orgId) {
+      this.instance.defaults.headers.common['X-Org-Id'] = orgId;
+    } else {
+      delete this.instance.defaults.headers.common['X-Org-Id'];
+    }
+  }
+
   private unwrap<T>(response: any): T {
     if (!response) return null as any;
     if (response.status && response.data !== undefined) {
@@ -25,7 +35,11 @@ export class ConclaveApiClient {
   }
 
   async get<T>(url: string, params?: any): Promise<T> {
-    const response = await this.instance.get<ConclaveResponse<T>>(url, { params });
+    const updatedParams = { ...params };
+    if (this.currentOrgId && !updatedParams?.orgId) {
+      updatedParams.orgId = this.currentOrgId;
+    }
+    const response = await this.instance.get<ConclaveResponse<T>>(url, { params: updatedParams });
     return this.unwrap(response.data);
   }
 

@@ -26,7 +26,6 @@ export default function LoginView() {
         throw new Error('Server returned an empty response');
       }
 
-      // Defensive check to prevent "undefined is not an object" crash
       const orgId = response.orgId || 'unknown';
       const token = response.token;
       const user = response.user;
@@ -43,6 +42,9 @@ export default function LoginView() {
           min_reviews_required: 0
         }
       };
+      
+      // Commit the OrgId to the API client so subsequent requests use it
+      api.setOrgId(orgId);
       
       setAuth(token, user, undefined, undefined, syntheticOrg);
       window.location.reload(); 
@@ -115,5 +117,5 @@ export default function LoginView() {
         </div>
       </div>
     </div>
-  )
+  );
 }
