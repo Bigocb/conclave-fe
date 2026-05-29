@@ -19,7 +19,7 @@ interface SidebarItemProps {
 const SidebarItem = ({ icon: Icon, label, active = false, onClick }: SidebarItemProps) => (
   <div 
     onClick={onClick} 
-    className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 ${active ? 'bg-aviation-accent/10 text-aviation-accent border-r-2 border-aviation-accent shadow-[inset_0_0_10px_rgba(0,217,139,0.1)]' : 'text-slate-500 hover:bg-slate-800/50 hover:text-white'}`}
+    className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-150 ${active ? 'bg-aviation-accent/10 text-aviation-accent border-r-2 border-aviation-accent shadow-[inset_0_0_10px_rgba(0,217,139,0.1)]' : 'text-slate-500 hover:bg-white/5 hover:text-white'}`}
   >
     <Icon size={18} className={active ? 'animate-pulse' : ''} />
     <span className="text-xs font-bold mono tracking-wider uppercase">{label}</span>
@@ -65,18 +65,18 @@ export default function App() {
 
   const renderDashboard = () => (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="col-span-1 lg:col-span-2 h-auto lg:h-64 bg-aviation-panel border border-aviation-border rounded-sm p-6 noc-glow relative overflow-hidden">
+      <div className="col-span-1 lg:col-span-2 h-auto lg:h-64 bg-aviation-panel border border-aviation-border rounded-none p-6 noc-glow relative overflow-hidden">
         <div className="absolute top-0 right-0 p-2">
           <span className="text-[8px] mono text-slate-600 uppercase tracking-widest font-bold">Org Context // active</span>
         </div>
         <h2 className="text-xs mono text-slate-500 mb-6 uppercase tracking-widest font-bold">Organization Overview</h2>
         <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
-          <div className="text-4xl md:text-6xl font-black mono text-white tracking-tighter italic">{org?.name || org?.id || 'TheOrg'}</div>
+          <div className="text-4xl md:text-6xl font-black mono text-white tracking-tighter italic uppercase">{org?.name || org?.id || 'TheOrg'}</div>
           <div className="hidden md:block h-12 w-px bg-aviation-border" />
           <div className="text-xs mono text-slate-500 uppercase tracking-widest leading-relaxed opacity-70">Secure Node <br /> Active Cluster</div>
         </div>
       </div>
-      <div className="h-auto lg:h-64 bg-aviation-panel border border-aviation-border rounded-sm p-6 shadow-sm">
+      <div className="h-auto lg:h-64 bg-aviation-panel border border-aviation-border rounded-none p-6 shadow-sm">
         <h2 className="text-xs mono text-slate-500 mb-4 uppercase tracking-widest font-bold">System Health</h2>
         <div className="space-y-3">
           <div className="flex justify-between items-center text-xs mono group">
@@ -102,7 +102,7 @@ export default function App() {
     if (activeView === 'principals') return <PrincipalsView />;
     if (activeView === 'vault') return <VaultView />;
     return (
-      <div className="h-full flex items-center justify-center border border-dashed border-aviation-border rounded-sm bg-black/20">
+      <div className="h-full flex items-center justify-center border border-dashed border-aviation-border rounded-none bg-black/20">
         <div className="text-center">
           <p className="text-slate-500 mono text-[10px] uppercase italic tracking-widest">Module {activeView} loading...</p>
           <div className="mt-4 w-48 h-1 bg-aviation-border overflow-hidden rounded-full">
@@ -114,7 +114,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-aviation-bg text-slate-200 overflow-hidden font-mono">
+    <div className="flex h-screen w-full bg-aviation-bg text-slate-200 overflow-hidden">
       {!isMobile && (
         <aside className="w-64 bg-aviation-panel border-r border-aviation-border flex flex-col shadow-2xl">
           <div className="p-6 border-b border-aviation-border bg-black/40">
