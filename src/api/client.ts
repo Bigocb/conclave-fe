@@ -81,4 +81,4 @@ class ConclaveApiClient {
   }
 }
 
-export const api = new ConclaveApiClient('https://conclave-roan.vercel.app');
+export const api = new ConclaveApiClient(import.meta.env.VITE_API_URL || 'https://conclave-roan.vercel.app');
