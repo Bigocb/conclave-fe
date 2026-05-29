@@ -17,22 +17,14 @@ export default function LoginView() {
     setError(null);
 
     try {
-      // The API returns a ConclaveResponse wrapper: { status: 'success', data: { token, user, orgId }, meta: ... }
       const response = await api.post<{ token: string, user: any, orgId: string }>('/v1/auth/login', {
         email,
         password
       });
       
-      // Use response.data if the helper doesn't already strip the wrapper, 
-      // or handle the case where the helper returns the raw response.
-      const authData = response.data || response;
-      
-      if (!authData.token) {
-        throw new Error('No token returned from server');
-      }
-
+      // api.post already unwraps .data.data, so response IS the T object
       const syntheticOrg = { 
-        id: authData.orgId, 
+        id: response.orgId, 
         name: 'My Organization',
         slug: 'my-org',
         policies: {
@@ -40,7 +32,7 @@ export default function LoginView() {
         }
       };
       
-      setAuth(authData.token, authData.user, undefined, undefined, syntheticOrg);
+      setAuth(response.token, response.user, undefined, undefined, syntheticOrg);
       window.location.reload(); 
     } catch (err: any) {
       console.error('[Login] Error:', err);
