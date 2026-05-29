@@ -6,7 +6,6 @@ export class ConclaveApiClient {
   instance: AxiosInstance;
   private currentOrgId: string | null = null;
 
-  
   constructor(baseUrl: string) {
     this.instance = axios.create({
       baseURL: baseUrl,
@@ -23,9 +22,6 @@ export class ConclaveApiClient {
         return Promise.reject(error);
       }
     );
-  }
-
-    });
   }
 
   setToken(token: string) {

@@ -33,11 +33,15 @@ export default function LoginView() {
       api.setOrgId(orgId);
       try {
         const orgData = await api.get('/v1/orgs/' + orgId);
-        setAuth(token, user, undefined, undefined, orgData);
+        setAuth(token, user, undefined, undefined, orgData as any);
       } catch (err) {
         console.error('[Login] Failed to fetch org details:', err);
-        // Fallback to basic org if details fail, but we still have the ID
-        setAuth(token, user, undefined, undefined, { id: orgId, name: 'Conclave Org', policies: { min_reviews_required: 0 } });
+        setAuth(token, user, undefined, undefined, { 
+          id: orgId, 
+          name: 'Conclave Org', 
+          slug: orgId, 
+          policies: { min_reviews_required: 0 } 
+        } as any);
       }
       window.location.reload(); 
     } catch (err: any) {
