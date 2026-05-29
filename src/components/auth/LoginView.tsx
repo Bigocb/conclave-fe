@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { api } from '../../api/client';
-import { Input, Button } from '../ui/core';
+import { Button } from '../ui/core';
 import { Lock } from 'lucide-react';
 
 export default function LoginView() {
@@ -22,25 +22,19 @@ export default function LoginView() {
         password
       });
       
-      if (!response) {
-        throw new Error('Server returned an empty response');
-      }
+      if (!response) throw new Error('Server returned an empty response');
 
       const orgId = response.orgId || 'unknown';
       const token = response.token;
       const user = response.user;
 
-      if (!token) {
-        throw new Error('Authentication successful but no token was provided');
-      }
+      if (!token) throw new Error('Authentication successful but no token was provided');
 
       const syntheticOrg = { 
         id: orgId, 
         name: 'My Organization',
         slug: 'my-org',
-        policies: {
-          min_reviews_required: 0
-        }
+        policies: { min_reviews_required: 0 }
       };
       
       api.setOrgId(orgId);
@@ -55,38 +49,36 @@ export default function LoginView() {
   };
 
   return (
-    <div className="h-screen w-full bg-aviation-bg flex items-center justify-center p-8">
-      <div className="max-w-md w-full bg-aviation-panel border border-aviation-border p-8 rounded-lg noc-glow shadow-2xl">
+    <div className="h-screen w-full bg-aviation-bg flex items-center justify-center p-8 font-mono">
+      <div className="max-w-md w-full bg-aviation-panel border border-aviation-border p-10 rounded-lg noc-glow shadow-2xl">
         <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-aviation-accent/10 border border-aviation-accent/30 rounded-full flex items-center justify-center mx-auto mb-4 text-aviation-accent">
+          <div className="w-16 h-16 bg-aviation-accent/10 border border-aviation-accent/30 rounded-full flex items-center justify-center mx-auto mb-6 text-aviation-accent">
             <Lock size={32} />
           </div>
-          <h2 className="text-2xl font-bold mono text-white uppercase tracking-tighter">Conclave Access</h2>
-          <p className="text-slate-500 text-[10px] mono mt-2 uppercase tracking-[0.2em]">Network Authentication Protocol</p>
+          <h2 className="text-3xl font-bold text-white uppercase tracking-tighter mb-2">Conclave Access</h2>
+          <p className="text-slate-500 text-[10px] uppercase tracking-[0.3em]">Network Authentication Protocol</p>
         </div>
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-6">
+        <form onSubmit={handleLogin} className="flex flex-col gap-8">
           <div className="space-y-6">
             <div className="flex flex-col gap-2">
-              <Input 
-                label="Network Identity (Email)" 
-                name="email" 
+              <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Network Identity (Email)</label>
+              <input 
                 type="email" 
                 value={email} 
-                onChange={(e: any) => setEmail(e.target.value)} 
+                onChange={(e) => setEmail(e.target.value)} 
                 required 
-                className="pl-2"
+                className="bg-black border border-aviation-border p-3 text-xs text-white focus:outline-none focus:border-aviation-accent transition-colors w-full mono"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Input 
-                label="Access Key" 
-                name="password" 
+              <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Access Key</label>
+              <input 
                 type="password" 
                 value={password} 
-                onChange={(e: any) => setPassword(e.target.value)} 
+                onChange={(e) => setPassword(e.target.value)} 
                 required 
-                className="pl-2"
+                className="bg-black border border-aviation-border p-3 text-xs text-white focus:outline-none focus:border-aviation-accent transition-colors w-full mono"
               />
             </div>
           </div>
@@ -100,14 +92,14 @@ export default function LoginView() {
           <Button 
             type="submit" 
             disabled={isLoading}
-            className="w-full py-4 tracking-widest"
+            className="w-full py-4 tracking-[0.2em] text-sm"
           >
             {isLoading ? 'AUTHENTICATING...' : 'ESTABLISH CONNECTION'}
           </Button>
         </form>
 
-        <div className="mt-8 pt-6 border-t border-aviation-border text-center">
-          <p className="text-[9px] mono text-slate-600 uppercase tracking-widest opacity-60">
+        <div className="mt-10 pt-6 border-t border-aviation-border text-center">
+          <p className="text-[9px] text-slate-600 uppercase tracking-widest opacity-60">
             Authorized personnel only. All activity is logged.
           </p>
         </div>
