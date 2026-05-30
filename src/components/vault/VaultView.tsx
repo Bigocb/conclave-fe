@@ -10,7 +10,11 @@ export default function VaultView() {
 
   const { data: keys, isLoading, error } = useQuery({
     queryKey: ['vault'],
-    queryFn: () => api.get<any[]>('/v1/vault/keys') 
+    queryFn: async () => {
+      const res = await api.get<any>('/v1/vault/keys');
+      // Server returns wrapped: { data: [...] }
+      return (res?.data || res || []) as any[];
+    },
   });
 
   const saveMutation = useMutation({

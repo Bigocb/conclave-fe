@@ -7,6 +7,7 @@ import AgentFactory from './components/factory/AgentFactory';
 import PrincipalsView from './components/principals/PrincipalsView';
 import VaultView from './components/vault/VaultView';
 import LoginView from './components/auth/LoginView';
+import TaskFeed from './components/feed/TaskFeed';
 import { MobileNav } from './components/ui/MobileNav';
 
 interface SidebarItemProps {
@@ -103,6 +104,7 @@ export default function App() {
     if (activeView === 'factory') return <AgentFactory />;
     if (activeView === 'principals') return <PrincipalsView />;
     if (activeView === 'vault') return <VaultView />;
+    if (activeView === 'feed') return <TaskFeed />;
     return (
       <div className="h-full flex flex-col items-center justify-center gap-4 border border-dashed border-[#2a385a] rounded-3xl bg-black/20">
         <div className="w-48 h-1 bg-[#2a385a] overflow-hidden rounded-full">
