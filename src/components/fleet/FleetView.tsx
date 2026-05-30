@@ -35,30 +35,34 @@ export default function FleetView() {
 
   const { data: status } = useQuery({
     queryKey: ['fleet', 'status', orgId],
-    queryFn: async () => {
-      const res = await api.get<any>(`/v1/fleet/status?orgId=${orgId}`);
-      return res as FleetStatus;
+    queryFn: async (): Promise<FleetStatus> => {
+      const raw = await api.get<any>(`/v1/fleet/status?orgId=${orgId}`);
+      // API returns { status, data: FleetStatus } or just FleetStatus
+      return (raw?.data || raw) as FleetStatus;
     },
     enabled: !!orgId,
   });
 
-  const { data: reviewers, isLoading: revLoading } = useQuery({
+  const { data: rawReviewers, isLoading: revLoading } = useQuery({
     queryKey: ['fleet', 'reviewers', orgId],
     queryFn: async () => {
-      const res = await api.get<any>(`/v1/fleet/reviewers?orgId=${orgId}`);
-      return (res?.reviewers || res?.data?.reviewers || []) as Reviewer[];
+      const raw = await api.get<any>(`/v1/fleet/reviewers?orgId=${orgId}`);
+      return (raw?.data?.reviewers || raw?.reviewers || raw || []) as Reviewer[];
     },
     enabled: !!orgId,
   });
 
-  const { data: config } = useQuery({
+  const { data: rawConfig } = useQuery({
     queryKey: ['fleet', 'config', orgId],
     queryFn: async () => {
-      const res = await api.get<any>(`/v1/fleet/config?orgId=${orgId}`);
-      return res as any;
+      const raw = await api.get<any>(`/v1/fleet/config?orgId=${orgId}`);
+      return (raw?.data || raw) as any;
     },
     enabled: !!orgId,
   });
+
+  const reviewers = rawReviewers || [];
+  const config = rawConfig;
 
   const saveReviewerMutation = useMutation({
     mutationFn: (data: any) => {

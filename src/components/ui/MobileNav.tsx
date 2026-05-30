@@ -1,4 +1,4 @@
-import { Home, Users, Activity, UserCircle, ShieldAlert } from 'lucide-react';
+import { Home, Users, Activity, ShieldAlert, ClipboardList } from 'lucide-react';
 
 interface MobileNavProps {
   currentView: string;
@@ -10,7 +10,7 @@ export function MobileNav({ currentView, setView }: MobileNavProps) {
     { id: 'dashboard', label: 'Home', icon: Home },
     { id: 'pulse', label: 'Pulse', icon: Activity },
     { id: 'fleet', label: 'Fleet', icon: Users },
-    { id: 'profiles', label: 'Profiles', icon: UserCircle },
+    { id: 'feed', label: 'Tasks', icon: ClipboardList },
     { id: 'vault', label: 'Vault', icon: ShieldAlert },
   ];
 
