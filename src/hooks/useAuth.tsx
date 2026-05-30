@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const savedUserId = localStorage.getItem('userId');
     const savedUserEmail = localStorage.getItem('userEmail');
 
-    if (savedToken && !token) {
+    if (savedToken) {
       api.setToken(savedToken);
       if (savedOrgId) {
         api.setOrgId(savedOrgId);
