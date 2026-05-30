@@ -1,6 +1,24 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-noc-bg: #06090f;
+  --color-noc-bg2: #0c111b;
+  --color-noc-bg3: #131a2b;
+  --color-noc-surface: #1a2236;
+  --color-noc-border: #1e2d4a;
+  --color-noc-text1: #e8edf5;
+  --color-noc-text2: #8b99b0;
+  --color-noc-text3: #556377;
+  --color-noc-green: #00d98b;
+  --color-noc-green2: #00b372;
+  --color-noc-cyan: #22d3ee;
+  --color-noc-purple: #a78bfa;
+  --color-noc-rose: #fb7185;
+  --color-noc-amber: #fbbf24;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --blur-glass: 16px;
+}
 
 :root {
   --bg: #06090f;
@@ -22,13 +40,13 @@
 body {
   background-color: var(--bg);
   color: var(--text1);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .mono {
-  font-family: 'JetBrains Mono', monospace !important;
+  font-family: var(--font-mono) !important;
 }
 
 .glass {
@@ -37,7 +55,6 @@ body {
   -webkit-backdrop-filter: blur(16px);
 }
 
-/* NOC glow effect for the "C" logo and accent elements */
 .noc-glow {
   box-shadow: 0 0 10px rgba(0, 217, 139, 0.4);
 }
@@ -47,7 +64,6 @@ body {
   text-shadow: 0 0 10px rgba(0, 217, 139, 0.3);
 }
 
-/* Animation utilities that replicate the original SPA's feel */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
@@ -57,7 +73,6 @@ body {
   animation: fade-in 0.5s ease-out;
 }
 
-/* Custom scrollbar to match NOC aesthetic */
 ::-webkit-scrollbar {
   width: 6px;
 }
