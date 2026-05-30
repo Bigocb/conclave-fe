@@ -63,6 +63,7 @@ export default function App() {
     { id: 'dashboard', label: 'Fleet Overview', icon: LayoutDashboard },
     { id: 'pulse', label: 'Live Pulse', icon: Activity },
     { id: 'fleet', label: 'Fleet Control', icon: Users },
+    { id: 'agents', label: 'All Agents', icon: Users },
     { id: 'profiles', label: 'Profiles', icon: UserCircle },
     { id: 'feed', label: 'Task Feed', icon: ShieldAlert },
     { id: 'vault', label: 'Trust Vault', icon: ShieldAlert },
@@ -107,6 +108,7 @@ export default function App() {
     if (activeView === 'dashboard') return renderDashboard();
     if (activeView === 'pulse') return <PulseView />;
     if (activeView === 'fleet') return <FleetView />;
+    if (activeView === 'agents') return <AgentFactory />;
     if (activeView === 'factory') return <AgentFactory />;
     if (activeView === 'profiles') return <ProfilesView />;
     if (activeView === 'principals') return <PrincipalsView />;
