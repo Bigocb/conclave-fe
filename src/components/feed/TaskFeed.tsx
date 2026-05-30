@@ -16,10 +16,11 @@ export default function TaskFeed() {
     queryKey: ['tasks', 'feed'],
     queryFn: async () => {
       const res = await api.get<any>('/v1/tasks');
+      console.log('[TaskFeed] API response:', JSON.stringify(res).slice(0, 500));
       // The API returns wrapped data: { tasks: [...], total: N } or { data: { tasks: [...], total: N } }
       const tasks = res?.tasks || res?.data?.tasks || [];
       return tasks as Task[];
-    }
+    },
   });
 
   if (isLoading) {
