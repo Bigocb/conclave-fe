@@ -27,7 +27,7 @@ export function PulseProvider({ children }: { children: React.ReactNode }) {
 
     // Connection to the Render-hosted Pulse Daemon
     // Format: /v1/pulse?orgId=...
-    const eventSource = new EventSource(`https://conclave-roan.vercel.app/v1/pulse?orgId=${org.id}`);
+    const eventSource = new EventSource(`https://conclave-bp4o.onrender.com/pulse?orgId=${org.id}`);
 
     setStatus('connecting');
 
