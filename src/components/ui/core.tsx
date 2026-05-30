@@ -74,14 +74,12 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-noc-bg2 border border-noc-border w-full max-w-2xl rounded-2xl animate-in zoom-in-95 duration-200">
-        <div className="p-4 border-b border-noc-border flex justify-between items-center">
+      <div className="bg-noc-bg2 border border-noc-border w-full max-w-2xl rounded-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+        <div className="p-4 border-b border-noc-border flex justify-between items-center shrink-0">
           <h3 className="text-sm font-bold mono text-noc-text1 uppercase tracking-tighter">{title}</h3>
-          <button onClick={onClose} className="text-noc-text2 hover:text-noc-text1">
-            <span className="text-lg">&times;</span>
-          </button>
+          <button onClick={onClose} className="text-noc-text2 hover:text-noc-text1 text-2xl leading-none p-1">&times;</button>
         </div>
-        <div className="p-6">
+        <div className="p-6 overflow-y-auto">
           {children}
         </div>
       </div>

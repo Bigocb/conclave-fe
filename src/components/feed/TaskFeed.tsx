@@ -318,11 +318,11 @@ export default function TaskFeed() {
               <div
                 key={task.id}
                 onClick={() => openDetail(task.id)}
-                className={`p-4 bg-noc-bg2 border border-noc-border rounded-xl hover:border-noc-green/50 transition-all cursor-pointer group ${isDismissed ? 'opacity-50' : ''}`}
+                className={`p-4 bg-noc-bg2 border border-noc-border rounded-xl hover:border-noc-green/50 transition-all cursor-pointer group overflow-hidden ${isDismissed ? 'opacity-50' : ''}`}
               >
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-[10px] font-mono text-noc-text3">{task.id}</span>
-                  <span className={`text-xs font-bold uppercase ${
+                  <span className="text-[10px] font-mono text-noc-text3 truncate max-w-[60%]">{task.id}</span>
+                  <span className={`text-xs font-bold uppercase shrink-0 ${
                     isDismissed ? 'text-noc-text3' :
                     task.status === 'completed' ? 'text-noc-green' :
                     task.status === 'in_review' ? 'text-noc-amber' :
@@ -331,18 +331,17 @@ export default function TaskFeed() {
                     {task.status}{isDismissed ? ' (hidden)' : ''}
                   </span>
                 </div>
-                <div className="text-sm mb-2 text-noc-text1">
-                  {(task.description || task.input || task.task_description || '').slice(0, 120)}
-                  {((task.description || task.input || task.task_description || '').length > 120) ? '...' : ''}
+                <div className="text-sm mb-2 text-noc-text1 line-clamp-2 break-words">
+                  {(task.description || task.input || task.task_description || '').slice(0, 200)}
                 </div>
                 <div className="flex justify-between items-center text-[10px] text-noc-text3">
-                  <span>Channel: {task.channel || '-'}</span>
-                  <span>Reviews: {task.reviews_received || 0}/{task.requested_reviews || '-'}</span>
+                  <span className="truncate">Channel: {task.channel || '-'}</span>
+                  <span className="shrink-0 ml-2">Reviews: {task.reviews_received || 0}/{task.requested_reviews || '-'}</span>
                 </div>
                 {task.dimensions && task.dimensions.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
+                  <div className="flex flex-wrap gap-1 mt-2 overflow-x-auto">
                     {task.dimensions.map(d => (
-                      <span key={d} className="text-[10px] px-1.5 py-0.5 bg-noc-green/10 text-noc-green rounded">{d}</span>
+                      <span key={d} className="text-[10px] px-1.5 py-0.5 bg-noc-green/10 text-noc-green rounded whitespace-nowrap shrink-0">{d}</span>
                     ))}
                   </div>
                 )}
