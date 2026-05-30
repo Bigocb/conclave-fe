@@ -42,8 +42,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const userData = { id: savedUserId || '', email: savedUserEmail || '', org_id: savedOrgId || '', isAdmin: false, name: savedUserEmail || '' };
             setAuth(savedToken, userData, undefined, undefined, orgData as any);
           } catch {
-            const userData = { id: savedUserId || '', email: savedUserEmail || '', org_id: savedOrgId || '', isAdmin: false, name: savedUserEmail || '' };
-            setAuth(savedToken, userData, undefined, undefined, { id: savedOrgId, name: 'Conclave Org', slug: savedOrgId, policies: {} } as any);
+            // Token expired or invalid — clear and force re-auth
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('orgId');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userEmail');
+            useAuthStore.getState().clearAuth();
+            api.setToken('');
+            api.setOrgId(null);
           }
         } else {
           setAuth(savedToken, { id: savedUserId || '', email: savedUserEmail || '', org_id: '', isAdmin: false, name: savedUserEmail || '' });
