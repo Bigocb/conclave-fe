@@ -8,7 +8,7 @@ interface MobileNavProps {
 export function MobileNav({ currentView, setView }: MobileNavProps) {
   const navItems = [
     { id: 'dashboard', label: 'Home', icon: Home },
-    { id: 'principals', label: 'Fleet', icon: Users },
+    { id: 'fleet', label: 'Fleet', icon: Users },
     { id: 'feed', label: 'Tasks', icon: ClipboardList },
     { id: 'factory', label: 'Agents', icon: Terminal },
     { id: 'vault', label: 'Vault', icon: ShieldAlert },
