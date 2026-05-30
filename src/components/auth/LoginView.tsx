@@ -53,42 +53,42 @@ export default function LoginView() {
   };
 
   return (
-    <div className="h-screen w-full bg-aviation-bg flex items-center justify-center p-8 font-mono">
-      <div className="max-w-md w-full bg-aviation-panel border border-aviation-border p-10 rounded-lg noc-glow shadow-2xl">
+    <div className="h-screen w-full bg-noc-bg flex items-center justify-center p-8">
+      <div className="max-w-md w-full bg-noc-bg2 border border-noc-border p-10 rounded-3xl shadow-2xl">
         <div className="text-center mb-10">
-          <div className="w-16 h-16 bg-aviation-accent/10 border border-aviation-accent/30 rounded-full flex items-center justify-center mx-auto mb-6 text-aviation-accent">
+          <div className="w-16 h-16 bg-noc-green/10 border border-noc-green/30 rounded-full flex items-center justify-center mx-auto mb-6 text-noc-green">
             <Lock size={32} />
           </div>
-          <h2 className="text-3xl font-bold text-white uppercase tracking-tighter mb-2">Conclave Access</h2>
-          <p className="text-slate-500 text-[10px] uppercase tracking-[0.3em]">Network Authentication Protocol</p>
+          <h2 className="text-3xl font-bold text-noc-text1 uppercase tracking-tighter mb-2">Conclave Access</h2>
+          <p className="text-noc-text3 text-[10px] uppercase tracking-[0.3em] mono">Network Authentication Protocol</p>
         </div>
 
         <form onSubmit={handleLogin} className="flex flex-col gap-8">
           <div className="space-y-6">
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Network Identity (Email)</label>
+              <label className="text-[10px] text-noc-text3 uppercase tracking-widest font-bold mono">Network Identity (Email)</label>
               <input 
                 type="email" 
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 required 
-                className="bg-black border border-aviation-border p-3 text-xs text-white focus:outline-none focus:border-aviation-accent transition-colors w-full mono"
+                className="bg-noc-bg3 border border-noc-border p-3 text-sm text-noc-text1 focus:outline-none focus:border-noc-green transition-colors w-full"
               />
             </div>
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Access Key</label>
+              <label className="text-[10px] text-noc-text3 uppercase tracking-widest font-bold mono">Access Key</label>
               <input 
                 type="password" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 required 
-                className="bg-black border border-aviation-border p-3 text-xs text-white focus:outline-none focus:border-aviation-accent transition-colors w-full mono"
+                className="bg-noc-bg3 border border-noc-border p-3 text-sm text-noc-text1 focus:outline-none focus:border-noc-green transition-colors w-full"
               />
             </div>
           </div>
 
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-red-500 text-[10px] mono uppercase text-center font-bold">
+            <div className="p-3 bg-noc-rose/10 border border-noc-rose/20 rounded text-noc-rose text-[10px] mono uppercase text-center font-bold">
               {error}
             </div>
           )}
@@ -102,8 +102,8 @@ export default function LoginView() {
           </Button>
         </form>
 
-        <div className="mt-10 pt-6 border-t border-aviation-border text-center">
-          <p className="text-[9px] text-slate-600 uppercase tracking-widest opacity-60">
+        <div className="mt-10 pt-6 border-t border-noc-border text-center">
+          <p className="text-[9px] text-noc-text3 uppercase tracking-widest opacity-60">
             Authorized personnel only. All activity is logged.
           </p>
         </div>

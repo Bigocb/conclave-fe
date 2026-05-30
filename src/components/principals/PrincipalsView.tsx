@@ -28,8 +28,8 @@ export default function PrincipalsView() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold mono text-white uppercase tracking-tighter">Principal Directory</h1>
-          <p className="text-xs mono text-slate-500">Manage network identities and attention budgets</p>
+          <h1 className="text-xl font-bold mono text-noc-text1 uppercase tracking-tighter">Principal Directory</h1>
+          <p className="text-xs mono text-noc-text2">Manage network identities and attention budgets</p>
         </div>
         <Button className="flex items-center gap-2">
           <Plus size={16} /> 
@@ -38,28 +38,28 @@ export default function PrincipalsView() {
       </div>
 
       {isLoading ? (
-        <div className="h-64 flex items-center justify-center border border-aviation-border rounded-lg bg-aviation-panel">
-          <div className="w-6 h-6 border-2 border-aviation-accent border-t-transparent rounded-full animate-spin" />
+        <div className="h-64 flex items-center justify-center border border-noc-border rounded-2xl bg-noc-bg2">
+          <div className="w-6 h-6 border-2 border-noc-green border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {principals?.map((p: any) => (
-            <Card key={p.id} className="p-5 group hover:border-aviation-accent/50 transition-colors relative overflow-hidden">
+            <Card key={p.id} className="p-5 group hover:border-noc-green/50 transition-colors relative overflow-hidden">
               <div className="absolute top-0 right-0 p-2">
-                <div className="text-[10px] mono text-slate-600 bg-black/40 px-2 py-0.5 rounded border border-aviation-border">
+                <div className="text-[10px] mono text-noc-text3 bg-black/40 px-2 py-0.5 rounded border border-noc-border">
                   {p.id.slice(0, 8)}...
                 </div>
               </div>
               
               <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-slate-800 border border-aviation-border rounded-full flex items-center justify-center text-aviation-accent">
+                <div className="w-12 h-12 bg-noc-bg3 border border-noc-border rounded-full flex items-center justify-center text-noc-green">
                   <UserCircle size={24} />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold mono text-white">{p.name}</h3>
+                  <h3 className="text-sm font-bold mono text-noc-text1">{p.name}</h3>
                   <div className="flex gap-2 mt-1">
                     {p.roles?.map((role: any) => (
-                      <span key={role} className="text-[9px] mono bg-aviation-accent/10 text-aviation-accent px-1 rounded border border-aviation-accent/20">
+                      <span key={role} className="text-[9px] mono bg-noc-green/10 text-noc-green px-1 rounded border border-noc-green/20">
                         {role.toUpperCase()}
                       </span>
                     ))}
@@ -68,19 +68,19 @@ export default function PrincipalsView() {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-black/40 p-3 rounded border border-aviation-border">
-                  <div className="flex items-center gap-2 text-slate-500 mb-1">
+                <div className="bg-noc-bg/60 p-3 rounded-xl border border-noc-border">
+                  <div className="flex items-center gap-2 text-noc-text3 mb-1">
                     <DollarSign size={12} />
                     <span className="text-[10px] mono uppercase">Budget Balance</span>
                   </div>
-                  <div className="text-lg font-bold mono text-white">{p.budget} <span className="text-xs text-slate-500 uppercase">Credits</span></div>
+                  <div className="text-lg font-bold mono text-noc-text1">{p.budget} <span className="text-xs text-noc-text3 uppercase">Credits</span></div>
                 </div>
-                <div className="bg-black/40 p-3 rounded border border-aviation-border">
-                  <div className="flex items-center gap-2 text-slate-500 mb-1">
+                <div className="bg-noc-bg/60 p-3 rounded-xl border border-noc-border">
+                  <div className="flex items-center gap-2 text-noc-text3 mb-1">
                     <TrendingUp size={12} />
                     <span className="text-[10px] mono uppercase">Reputation</span>
                   </div>
-                  <div className="text-lg font-bold mono text-aviation-accent">{p.reputation}%</div>
+                  <div className="text-lg font-bold mono text-noc-green">{p.reputation}%</div>
                 </div>
               </div>
 

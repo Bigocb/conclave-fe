@@ -43,8 +43,8 @@ export default function AgentFactory() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-bold mono text-white uppercase tracking-tighter">Agent Factory</h1>
-          <p className="text-xs mono text-slate-500">Provision and manage ephemeral compute nodes</p>
+          <h1 className="text-xl font-bold mono text-noc-text1 uppercase tracking-tighter">Agent Factory</h1>
+          <p className="text-xs mono text-noc-text2">Provision and manage ephemeral compute nodes</p>
         </div>
         <Button 
           onClick={() => { setEditAgent(null); setIsModalOpen(true); }}
@@ -56,21 +56,21 @@ export default function AgentFactory() {
       </div>
 
       {isLoading ? (
-        <div className="h-64 flex items-center justify-center border border-aviation-border rounded-lg bg-aviation-panel">
-          <div className="w-6 h-6 border-2 border-aviation-accent border-t-transparent rounded-full animate-spin" />
+        <div className="h-64 flex items-center justify-center border border-noc-border rounded-2xl bg-noc-bg2">
+          <div className="w-6 h-6 border-2 border-noc-green border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {agents?.map((agent: any) => (
-            <Card key={agent.id} className="p-4 group hover:border-aviation-accent/50 transition-colors">
+            <Card key={agent.id} className="p-5 group hover:border-noc-green/50 transition-colors">
               <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-black border border-aviation-border rounded flex items-center justify-center text-aviation-accent mono text-xs font-bold">
+                  <div className="w-10 h-10 bg-noc-bg3 border border-noc-border rounded-xl flex items-center justify-center text-noc-green mono text-xs font-bold">
                     {agent.type ? agent.type[0].toUpperCase() : 'U'}
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold mono text-white truncate max-w-xs">{agent.name}</h3>
-                    <p className="text-[10px] mono text-slate-500 truncate max-w-xs">{agent.id}</p>
+                    <h3 className="text-sm font-bold mono text-noc-text1 truncate max-w-xs">{agent.name}</h3>
+                    <p className="text-[10px] mono text-noc-text3 truncate max-w-xs">{agent.id}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -91,17 +91,17 @@ export default function AgentFactory() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-aviation-border">
+              <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-noc-border">
                 <div>
-                  <p className="text-[10px] mono text-slate-600 uppercase tracking-widest">Provider/Model</p>
-                  <p className="text-xs mono text-slate-300 truncate">
+                  <p className="text-[10px] mono text-noc-text3 uppercase tracking-widest">Provider/Model</p>
+                  <p className="text-xs mono text-noc-text2 truncate">
                     {agent.provider || 'custom'} / {agent.model || 'n/a'}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-[10px] mono text-slate-600 uppercase tracking-widest">Status</p>
-                  <p className="text-xs mono text-aviation-accent flex items-center justify-end gap-1">
-                    <div className="w-1.5 h-1.5 bg-aviation-accent rounded-full" />
+                  <p className="text-[10px] mono text-noc-text3 uppercase tracking-widest">Status</p>
+                  <p className="text-xs mono text-noc-green flex items-center justify-end gap-1">
+                    <div className="w-1.5 h-1.5 bg-noc-green rounded-full" />
                     {agent.status ? agent.status.toUpperCase() : 'UNKNOWN'}
                   </p>
                 </div>
@@ -148,11 +148,11 @@ export default function AgentFactory() {
           </div>
           <div className="col-span-2">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs mono text-slate-500 uppercase tracking-wider">System Instructions</label>
+              <label className="text-xs mono text-noc-text3 uppercase tracking-wider">System Instructions</label>
               <textarea 
                 name="instructions" 
                 rows={4}
-                className="bg-black border border-aviation-border p-2 text-xs mono text-white focus:outline-none focus:border-aviation-accent transition-colors w-full"
+                className="bg-noc-bg3 border border-noc-border p-2 text-xs mono text-noc-text1 focus:outline-none focus:border-noc-green transition-colors w-full"
                 defaultValue={editAgent?.instructions}
               />
             </div>
