@@ -1,6 +1,9 @@
 import { create } from 'zustand';
 import type { Agent, Principal, Org, User } from '../types/api';
 
+const TOKEN_KEY = 'access_token';
+const ORG_ID_KEY = 'orgId';
+
 interface AuthState {
   token: string | null;
   user: User | null;
@@ -13,20 +16,22 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  token: localStorage.getItem('clv_token'),
+  token: localStorage.getItem(TOKEN_KEY),
   user: null,
   agent: null,
   principal: null,
-  org: null,
-  isAuthenticated: !!localStorage.getItem('clv_token'),
+  org: localStorage.getItem(ORG_ID_KEY) ? { id: localStorage.getItem(ORG_ID_KEY)!, name: 'Conclave Org' } as Org : null,
+  isAuthenticated: !!localStorage.getItem(TOKEN_KEY),
   
   setAuth: (token, user, agent = null, principal = null, org = null) => {
-    localStorage.setItem('clv_token', token);
+    localStorage.setItem(TOKEN_KEY, token);
+    if (org?.id) localStorage.setItem(ORG_ID_KEY, org.id);
     set({ token, user, agent, principal, org, isAuthenticated: true });
   },
   
   clearAuth: () => {
-    localStorage.removeItem('clv_token');
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(ORG_ID_KEY);
     set({ token: null, user: null, agent: null, principal: null, org: null, isAuthenticated: false });
   },
 }));

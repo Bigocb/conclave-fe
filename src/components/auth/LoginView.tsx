@@ -30,7 +30,15 @@ export default function LoginView() {
 
       if (!token) throw new Error('Authentication successful but no token was provided');
 
+      // Persist auth state to localStorage for page reload
+      localStorage.setItem('access_token', token);
+      localStorage.setItem('orgId', orgId);
+      if (user?.id) localStorage.setItem('userId', user.id);
+      if (user?.email) localStorage.setItem('userEmail', user.email);
+
+      api.setToken(token);
       api.setOrgId(orgId);
+
       try {
         const orgData = await api.get('/v1/orgs/' + orgId);
         setAuth(token, user, undefined, undefined, orgData as any);

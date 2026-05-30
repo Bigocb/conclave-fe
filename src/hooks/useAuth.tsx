@@ -1,71 +1,87 @@
-import React, { useEffect, useState, createContext, useContext } from 'react';
-import { api } from '../api/client';
+import React, { useEffect, useState } from 'react';
 import { useAuthStore } from '../store/authStore';
-import type { Agent, Principal, Org, User } from '../types/api';
+import { api } from '../api/client';
 
-const AuthContext = createContext<any>(null);
+/**
+ * AuthContext — provides isAuthenticated and logout to the app tree.
+ */
+export const AuthContext = React.createContext<{
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  logout: () => void;
+}>({
+  isAuthenticated: false,
+  isLoading: true,
+  logout: () => {},
+});
 
+/**
+ * AuthProvider — wraps the app, restores session from localStorage on mount.
+ */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { token, setAuth, clearAuth, isAuthenticated } = useAuthStore();
   const [isLoading, setIsLoading] = useState(true);
+  const { token, setAuth } = useAuthStore();
 
   useEffect(() => {
-    async function initAuth() {
-      if (!token) {
-        setIsLoading(false);
-        return;
-      }
-      try {
-        api.setToken(token);
-        
-        // We need the orgId for most requests to work with User tokens.
-        // Let's try to get it from /v1/agents/me first (for Agents)
-        try {
-          const identity = await api.get<{ agent_id: string, principal_id: string, org_id: string }>('/v1/agents/me');
-          
-          if (identity && identity.org_id) {
-            api.setOrgId(identity.org_id);
-            const agent = await api.get<Agent>(`/v1/agents/${identity.agent_id}`);
-            const principal = await api.get<Principal>(`/v1/principals/${identity.principal_id}`);
-            const org = await api.get<Org>(`/v1/orgs/${identity.org_id}`);
-            
-            const syntheticUser: User = {
-              id: identity.agent_id,
-              email: `agent-${identity.agent_id}@conclave.local`,
-              name: agent.name,
-              org_id: identity.org_id,
-              isAdmin: false
-            };
+    const savedToken = localStorage.getItem('access_token');
+    const savedOrgId = localStorage.getItem('orgId');
+    const savedUserId = localStorage.getItem('userId');
+    const savedUserEmail = localStorage.getItem('userEmail');
 
-            setAuth(token, syntheticUser, agent, principal, org);
-          }
-        } catch (agentError: any) {
-          if (agentError.response?.status === 401) {
-            console.log('[Auth] Token is invalid (401). Clearing session.');
-            clearAuth();
-          } else {
-            console.log('[Auth] Not an agent session, treating as user session.');
-            // The token is kept. The OrgId will be handled by the LoginView calling api.setOrgId 
-            // or we can try to fetch the user's org if the API allows.
-          }
-        }
-      } catch (error) {
-        console.error('[Auth] Critical initialization error:', error);
-        clearAuth();
-      } finally {
-        setIsLoading(false);
+    if (savedToken && !token) {
+      api.setToken(savedToken);
+      if (savedOrgId) {
+        api.setOrgId(savedOrgId);
       }
+
+      // Try to fetch org details, fallback to minimal auth
+      const restoreAuth = async () => {
+        if (savedOrgId) {
+          try {
+            const orgData = await api.get('/v1/orgs/' + savedOrgId);
+            const userData = { id: savedUserId || '', email: savedUserEmail || '', org_id: savedOrgId || '', isAdmin: false, name: savedUserEmail || '' };
+            setAuth(savedToken, userData, undefined, undefined, orgData as any);
+          } catch {
+            const userData = { id: savedUserId || '', email: savedUserEmail || '', org_id: savedOrgId || '', isAdmin: false, name: savedUserEmail || '' };
+            setAuth(savedToken, userData, undefined, undefined, { id: savedOrgId, name: 'Conclave Org', slug: savedOrgId, policies: {} } as any);
+          }
+        } else {
+          setAuth(savedToken, { id: savedUserId || '', email: savedUserEmail || '', org_id: '', isAdmin: false, name: savedUserEmail || '' });
+        }
+        setIsLoading(false);
+      };
+      restoreAuth();
+    } else if (token) {
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
     }
-    initAuth();
-  }, [token, setAuth, clearAuth]);
+  }, []);
+
+  const logout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('orgId');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userEmail');
+    useAuthStore.getState().clearAuth();
+    api.setToken('');
+    api.setOrgId(null);
+    window.location.href = '/';
+  };
+
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated) || !!localStorage.getItem('access_token');
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, isLoading, logout: clearAuth }}>
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
+/**
+ * useAuth hook — convenient access to auth state.
+ */
 export function useAuth() {
-  return useContext(AuthContext);
+  const ctx = React.useContext(AuthContext);
+  return ctx;
 }
