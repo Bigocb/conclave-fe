@@ -15,10 +15,11 @@ export default function TaskFeed() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['tasks', 'feed'],
     queryFn: async () => {
-      const res = await api.get<any>('/v1/tasks');
+      const res = await api.get<any>('/v1/tasks?include_dismissed=true');
       console.log('[TaskFeed] API response:', JSON.stringify(res).slice(0, 500));
-      // The API returns wrapped data: { tasks: [...], total: N } or { data: { tasks: [...], total: N } }
-      const tasks = res?.tasks || res?.data?.tasks || [];
+      // Server returns: { status: 'success', data: { tasks: [...], total: N } }
+      // The api client unwraps data, so res = { tasks: [...], total: N }
+      const tasks = res?.tasks || [];
       return tasks as Task[];
     },
   });
