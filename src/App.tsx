@@ -10,6 +10,7 @@ import LoginView from './components/auth/LoginView';
 import TaskFeed from './components/feed/TaskFeed';
 import FleetView from './components/fleet/FleetView';
 import ProfilesView from './components/profiles/ProfilesView';
+import PulseView from './components/pulse/PulseView';
 import { MobileNav } from './components/ui/MobileNav';
 
 interface SidebarItemProps {
@@ -60,10 +61,10 @@ export default function App() {
 
   const views = [
     { id: 'dashboard', label: 'Fleet Overview', icon: LayoutDashboard },
+    { id: 'pulse', label: 'Live Pulse', icon: Activity },
     { id: 'fleet', label: 'Fleet Control', icon: Users },
-    { id: 'factory', label: 'Agent Factory', icon: Users },
     { id: 'profiles', label: 'Profiles', icon: UserCircle },
-    { id: 'feed', label: 'Task Feed', icon: Activity },
+    { id: 'feed', label: 'Task Feed', icon: ShieldAlert },
     { id: 'vault', label: 'Trust Vault', icon: ShieldAlert },
   ];
 
@@ -104,6 +105,7 @@ export default function App() {
 
   const renderView = () => {
     if (activeView === 'dashboard') return renderDashboard();
+    if (activeView === 'pulse') return <PulseView />;
     if (activeView === 'fleet') return <FleetView />;
     if (activeView === 'factory') return <AgentFactory />;
     if (activeView === 'profiles') return <ProfilesView />;
