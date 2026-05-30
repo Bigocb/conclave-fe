@@ -12,7 +12,7 @@ export default function AgentFactory() {
 
   const { data: agents, isLoading } = useQuery({
     queryKey: ['agents'],
-    queryFn: () => api.get<Agent[]>('/v1/agents/org')
+    queryFn: () => api.get<Agent[]>('/v1/agents'),
   });
 
   const registerMutation = useMutation({
