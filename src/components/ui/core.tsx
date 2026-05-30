@@ -79,27 +79,20 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
         drag=\"x\"
         dragConstraints={{ left: 0, right: 0 }}
         onDragEnd={(event, info) => {
-          if (Math.abs(info.offset.x) > 150) {
+          if (Math.abs(info.offset.x) > 120) {
             onClose();
           }
         }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        transition={{ type: 'spring', stiffness: 250, damping: 25 }}
         className=\"bg-noc-bg2 border border-noc-border w-full max-w-2xl rounded-2xl animate-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col cursor-grab active:cursor-grabbing\"
       >
         <div className=\"p-4 border-b border-noc-border flex justify-between items-center shrink-0\">
           <h3 className=\"text-sm font-bold mono text-noc-text1 uppercase tracking-tighter\">{title}</h3>
           <button onClick={onClose} className=\"text-noc-text2 hover:text-noc-text1 text-2xl leading-none p-1\">&times;</button>
         </div>
-        <div className=\"p-6 overflow-y-auto\">
-          {children}
-        </div>
-      </motion.div>
-    </div>
-  );
-};
+        <div className=\"p-6 overflow-y-auto\">\n          {children}\n        </div>\n      </motion.div>\n    </div>\n  );\n};
 
 export const Card = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
   <div className={`bg-noc-bg2 border border-noc-border rounded-2xl ${className}`}>
     {children}
-  </div>
-);
+  </div>\n);

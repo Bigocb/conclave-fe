@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
 import type { Agent } from '../../types/api';
@@ -10,6 +10,8 @@ export default function AgentFactory() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editAgent, setEditAgent] = useState<Agent | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const { data: agents, isLoading } = useQuery({
     queryKey: ['agents'],
@@ -40,16 +42,23 @@ export default function AgentFactory() {
     }
   });
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await queryClient.invalidateQueries({ queryKey: ['agents'] });
+    setIsRefreshing(false);
+  };
+
   return (
     <motion.div 
+      ref={containerRef}
       drag=\"y\"
       dragConstraints={{ top: 0, bottom: 0 }}
       onDragEnd={(event, info) => {
-        if (info.offset.y > 80) {
-          queryClient.invalidateQueries({ queryKey: ['agents'] });
+        if (info.offset.y > 80 && (containerRef.current?.scrollTop === 0)) {
+          handleRefresh();
         }
       }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      transition={{ type: 'spring', stiffness: 250, damping: 25 }}
       className=\"space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500\"\n    >
       <div className=\"flex justify-between items-center\">\n        <div className=\"flex flex-col\">\n          <h1 className=\"text-xl font-bold mono text-noc-text1 uppercase tracking-tighter\">Agent Factory</h1>\n          <p className=\"text-xs mono text-noc-text2\">Provision and manage ephemeral compute nodes</p>\n        </div>\n        <Button \n          onClick={() => { setEditAgent(null); setIsModalOpen(true); }}\n          className=\"flex items-center gap-2\"\n        >\n          <Plus size={16} /> \n          <span className=\"text-xs mono\">REGISTER AGENT</span>\n        </Button>\n      </div>
 
