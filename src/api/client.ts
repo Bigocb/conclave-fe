@@ -16,8 +16,12 @@ export class ConclaveApiClient {
       (response) => response,
       (error) => {
         if (error.response?.status === 401) {
-          localStorage.removeItem('clv_token');
-          window.location.href = '/'; 
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('orgId');
+          localStorage.removeItem('userId');
+          localStorage.removeItem('userEmail');
+          // Force full page reload so React re-renders to login screen
+          window.location.reload();
         }
         return Promise.reject(error);
       }
