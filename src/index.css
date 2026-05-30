@@ -3,34 +3,71 @@
 @tailwind utilities;
 
 :root {
-  --bg: #0a0d14; 
-  --bg2: #111520;
-  --bg3: #1a2133;
-  --border: #2a385a;
-  --green: #39FF14; 
-  --green-glow: rgba(57, 255, 20, 0.3);
+  --bg: #06090f;
+  --bg2: #0c111b;
+  --bg3: #131a2b;
+  --surface: #1a2236;
+  --border: #1e2d4a;
+  --text1: #e8edf5;
+  --text2: #8b99b0;
+  --text3: #556377;
+  --green: #00d98b;
+  --green2: #00b372;
   --cyan: #22d3ee;
+  --purple: #a78bfa;
+  --rose: #fb7185;
+  --amber: #fbbf24;
 }
 
 body {
   background-color: var(--bg);
-  color: #e8edf5;
-  font-family: 'Inter', sans-serif;
+  color: var(--text1);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.mono { 
-  font-family: 'JetBrains Mono', monospace !important; 
+.mono {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.glass {
+  background: rgba(12, 17, 27, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* NOC glow effect for the "C" logo and accent elements */
+.noc-glow {
+  box-shadow: 0 0 10px rgba(0, 217, 139, 0.4);
 }
 
 .noc-glow-text {
   color: var(--green);
-  text-shadow: 0 0 10px var(--green-glow);
+  text-shadow: 0 0 10px rgba(0, 217, 139, 0.3);
 }
 
-.glass-panel { 
-  background: rgba(17, 21, 32, 0.85); 
-  backdrop-filter: blur(20px); 
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
+/* Animation utilities that replicate the original SPA's feel */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out;
+}
+
+/* Custom scrollbar to match NOC aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text3);
 }
