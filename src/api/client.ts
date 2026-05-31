@@ -51,7 +51,7 @@ export class ConclaveApiClient {
 
   async get<T>(url: string, params?: any): Promise<T> {
     const updatedParams = { ...params };
-    if (this.currentOrgId && !updatedParams?.orgId) {
+        if (this.currentOrgId && !url.includes('orgId=')) {
       updatedParams.orgId = this.currentOrgId;
     }
     const response = await this.instance.get<ConclaveResponse<T>>(url, { params: updatedParams });
