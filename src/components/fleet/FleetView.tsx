@@ -46,6 +46,7 @@ export default function FleetView() {
     queryKey: ['fleet', 'status', orgId],
     queryFn: async (): Promise<FleetStatus> => {
       const raw = await api.get<any>(`/v1/fleet/status?orgId=${orgId}`);
+      // API returns { status, data: FleetStatus } or just FleetStatus
       return (raw?.data || raw) as FleetStatus;
     },
     enabled: !!orgId,
@@ -105,7 +106,7 @@ export default function FleetView() {
     return (
       <div className="h-64 flex items-center justify-center border border-dashed border-noc-border rounded-3xl bg-black/20">
         <p className="text-noc-text2 mono text-xs uppercase italic tracking-widest">No organization context</p>
-      </div
+      </div>
     );
   }
 
@@ -115,7 +116,7 @@ export default function FleetView() {
         <div className="flex flex-col">
           <h1 className="text-xl font-bold mono text-noc-text1 uppercase tracking-tighter">Fleet Management</h1>
           <p className="text-xs mono text-noc-text2">Satellite reviewer orchestration and health</p>
-        </div
+        </div>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={() => setIsConfigModal(true)} className="flex items-center gap-1.5">
             <Cpu size={14} /> CONFIG
@@ -123,8 +124,8 @@ export default function FleetView() {
           <Button onClick={() => { setEditingReviewer(null); setIsReviewerModal(true); }} className="flex items-center gap-1.5">
             <Plus size={14} /> ADD REVIEWER
           </Button>
-        </div
-      </div
+        </div>
+      </div>
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
@@ -132,35 +133,35 @@ export default function FleetView() {
             {isOnline ? (
               <div className="w-10 h-10 bg-noc-green/20 border border-noc-green/30 rounded-full flex items-center justify-center">
                 <Wifi size={20} className="text-noc-green" />
-              </div
+              </div>
             ) : (
               <div className="w-10 h-10 bg-noc-rose/20 border border-noc-rose/30 rounded-full flex items-center justify-center">
                 <WifiOff size={20} className="text-noc-rose" />
-              </div
+              </div>
             )}
             <div>
               <h3 className="text-sm font-bold mono text-noc-text1">Satellite Relay</h3>
               <p className="text-[10px] mono text-noc-text3">Fleet control plane</p>
-            </div
-          </div
+            </div>
+          </div>
           <span className={`text-xs font-bold px-3 py-1 rounded-full border ${isOnline ? 'bg-noc-green/10 text-noc-green border-noc-green/30' : 'bg-noc-rose/10 text-noc-rose border-noc-rose/30'}`}>
             {status?.satellite || 'OFFLINE'}
-          </span
-        </div
+          </span>
+        </div>
         <div className="grid grid-cols-3 gap-4">
           <div className="bg-noc-bg3/50 rounded-xl p-4 text-center border border-noc-border">
             <p className="text-2xl font-bold mono text-noc-green">{status?.metrics?.activeReviewers || 0}</p>
             <p className="text-[10px] mono text-noc-text3 uppercase tracking-wider mt-1">Reviewers</p>
-          </div
+          </div>
           <div className="bg-noc-bg3/50 rounded-xl p-4 text-center border border-noc-border">
             <p className="text-2xl font-bold mono text-noc-text1">{status?.metrics?.totalReplicas || 0}</p>
             <p className="text-[10px] mono text-noc-text3 uppercase tracking-wider mt-1">Total Replicas</p>
-          </div
+          </div>
           <div className="bg-noc-bg3/50 rounded-xl p-4 text-center border border-noc-border">
             <p className="text-2xl font-bold mono text-noc-amber">{config?.server || 'default'}</p>
             <p className="text-[10px] mono text-noc-text3 uppercase tracking-wider mt-1">Server Mode</p>
-          </div
-        </div
+          </div>
+        </div>
       </Card>
 
       <div>
@@ -168,11 +169,11 @@ export default function FleetView() {
         {revLoading ? (
           <div className="h-32 flex items-center justify-center border border-noc-border rounded-2xl bg-noc-bg2">
             <div className="w-5 h-5 border-2 border-noc-green border-t-transparent rounded-full animate-spin" />
-          </div
+          </div>
         ) : !reviewers || reviewers.length === 0 ? (
           <div className="h-32 flex items-center justify-center border border-dashed border-noc-border rounded-2xl bg-black/20">
             <p className="text-noc-text2 mono text-xs italic">No reviewer blueprints configured</p>
-          </div
+          </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {reviewers.map((r) => (
@@ -181,12 +182,12 @@ export default function FleetView() {
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 bg-noc-bg3 border border-noc-border rounded-lg flex items-center justify-center text-noc-cyan">
                       <Radio size={18} />
-                    </div
+                    </div>
                     <div>
                       <h3 className="text-sm font-bold mono text-noc-text1">{r.name}</h3>
                       <p className="text-[10px] mono text-noc-text3">{r.type}/{r.model || r.provider || 'custom'}</p>
-                    </div
-                  </div
+                    </div>
+                  </div>
                   <div className="flex gap-1">
                     <Button variant="secondary" className="p-1.5" onClick={() => { setEditingReviewer(r); setIsReviewerModal(true); }}>
                       <Edit3 size={14} />
@@ -194,27 +195,27 @@ export default function FleetView() {
                     <Button variant="danger" className="p-1.5" onClick={() => deleteReviewerMutation.mutate(r.id)}>
                       <Trash2 size={14} />
                     </Button>
-                  </div
-                </div
+                  </div>
+                </div>
                 <div className="flex flex-wrap gap-4 text-[10px] mono text-noc-text3">
                   <span>Replicas: {r.replicas}</span>
                   <span>Mode: {r.mode}</span>
                   <span>Confidence: {r.confidenceThreshold}/10</span>
-                </div
+                </div>
                 {r.channels && (
                   <div className="flex flex-wrap gap-1 mt-3">
                     {JSON.parse(r.channels).map((ch: string) => (
                       <span key={ch} className="text-[9px] px-1.5 py-0.5 bg-noc-bg3 rounded border border-noc-border text-noc-text2">{ch}</span>
                     ))}
-                  </div
+                  </div>
                 )}
               </Card>
             ))}
-          </div
+          </div>
         )}
-      </div
+      </div>
 
-      <Modal isOpen={isReviewerModal} onClose={() => { setIsReview and setEditingReviewer(null); }}
+      <Modal isOpen={isReviewerModal} onClose={() => { setIsReviewerModal(false); setEditingReviewer(null); }}
         title={editingReviewer ? 'Edit Reviewer Blueprint' : 'New Reviewer Blueprint'}>
         <form className="space-y-4" onSubmit={(e) => {
           e.preventDefault();
@@ -239,13 +240,13 @@ export default function FleetView() {
             <Input label="Mode (auto/manual)" name="mode" defaultValue={editingReviewer?.mode || 'auto'} />
             <Input label="Replicas" name="replicas" type="number" defaultValue={String(editingReviewer?.replicas || 1)} />
             <Input label="Confidence Threshold" name="confidence" type="number" defaultValue={String(editingReviewer?.confidenceThreshold || 8)} />
-          </div
+          </div>
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="secondary" onClick={() => { setIsReviewerModal(false); setEditingReviewer(null); }}>CANCEL</Button>
             <Button type="submit" disabled={saveReviewerMutation.isPending}>
               {saveReviewerMutation.isPending ? 'SAVING...' : editingReviewer ? 'UPDATE BLUEPRINT' : 'CREATE BLUEPRINT'}
             </Button>
-          </div
+          </div>
         </form>
       </Modal>
 
@@ -262,9 +263,9 @@ export default function FleetView() {
             <Button type="submit" disabled={updateConfigMutation.isPending}>
               {updateConfigMutation.isPending ? 'SAVING...' : 'UPDATE CONFIG'}
             </Button>
-          </div
+          </div>
         </form>
       </Modal>
-    </div
+    </div>
   );
 }
