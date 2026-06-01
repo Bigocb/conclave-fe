@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
-import { Card, Input, Button, Modal } from '../ui/core';
+import { Card, Input, Button, Modal, Select } from '../ui/core';
 import { FileText, Plus, Trash2, Edit3 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -22,6 +22,16 @@ export default function ProfilesView() {
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
 
   const orgId = org?.id;
+
+  const { data: vaultKeys } = useQuery({
+    queryKey: ['vault'],
+    queryFn: async () => {
+      const res = await api.get<any>('/v1/vault/keys');
+      return (res?.data || res || []) as any[];
+    },
+    enabled: !!orgId,
+  });
+
 
   const { data: profiles, isLoading } = useQuery({
     queryKey: ['profiles', orgId],
@@ -131,7 +141,15 @@ export default function ProfilesView() {
         }}>
           <Input label="Profile Name" name="name" defaultValue={editingProfile?.name} required />
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Provider" name="provider" defaultValue={editingProfile?.provider} />
+            <Select 
+              label="Provider" 
+              name="provider" 
+              defaultValue={editingProfile?.provider}
+              options={[
+                { value: 'custom', label: 'Custom' },
+                ...(vaultKeys?.map(k => ({ value: k.provider, label: k.provider })) || [])
+              ]}
+            />
             <Input label="Model" name="model" defaultValue={editingProfile?.model} />
           </div>
           <div className="flex flex-col gap-1.5">

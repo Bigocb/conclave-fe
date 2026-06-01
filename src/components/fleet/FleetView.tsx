@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
-import { Card, Input, Button, Modal } from '../ui/core';
+import { Card, Input, Button, Modal, Select } from '../ui/core';
 import { Radio, Cpu, Plus, Trash2, Edit3, Wifi, WifiOff } from 'lucide-react';
 
 interface Reviewer {
@@ -33,8 +33,16 @@ export default function FleetView() {
 
   const orgId = org?.id;
 
-  const { data: status } = useQuery({
-    queryKey: ['fleet', 'status', orgId],
+  const { data: vaultKeys } = useQuery({
+    queryKey: ['vault'],
+    queryFn: async () => {
+      const res = await api.get<any>('/v1/vault/keys');
+      return (res?.data || res || []) as any[];
+    },
+    enabled: !!orgId,
+  });
+
+  const { data: status } = useQuery({\n    queryKey: ['fleet', 'status', orgId],
     queryFn: async (): Promise<FleetStatus> => {
       const raw = await api.get<any>(`/v1/fleet/status?orgId=${orgId}`);
       // API returns { status, data: FleetStatus } or just FleetStatus
@@ -218,20 +226,23 @@ export default function FleetView() {
             <Input label="Blueprint Name" name="name" defaultValue={editingReviewer?.name} required />
             <Input label="Channels (comma-sep)" name="channels" defaultValue={editingReviewer?.channels ? JSON.parse(editingReviewer.channels).join(', ') : 'code-review'} required />
             <Input label="Type" name="type" defaultValue={editingReviewer?.type || 'llm'} />
-            <Input label="Provider" name="provider" defaultValue={editingReviewer?.provider} />
+            <Select 
+              label="Provider" 
+              name="provider" 
+              defaultValue={editingReviewer?.provider}
+              options={[
+                { value: 'custom', label: 'Custom' },
+                ...(vaultKeys?.map(k => ({ value: k.provider, label: k.provider })) || [])
+              ]}
+            />
             <Input label="Model" name="model" defaultValue={editingReviewer?.model} />
             <Input label="Mode (auto/manual)" name="mode" defaultValue={editingReviewer?.mode || 'auto'} />
             <Input label="Replicas" name="replicas" type="number" defaultValue={String(editingReviewer?.replicas || 1)} />
             <Input label="Confidence Threshold" name="confidence" type="number" defaultValue={String(editingReviewer?.confidenceThreshold || 8)} />
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="secondary" onClick={() => { setIsReviewerModal(false); setEditingReviewer(null); }}>CANCEL</Button>
-            <Button type="submit" disabled={saveReviewerMutation.isPending}>
-              {saveReviewerMutation.isPending ? 'SAVING...' : editingReviewer ? 'UPDATE BLUEPRINT' : 'CREATE BLUEPRINT'}
-            </Button>
-          </div>
-        </form>
-      </Modal>
+            <Button variant="secondary" onClick={() => { setIsReviewerModal(false); setEditingReviewer(null); }}>CANCEL</Button>\n            <Button type="submit" disabled={saveReviewerMutation.isPending}>\n              {saveReviewerMutation.isPending ? 'SAVING...' : editingReviewer ? 'UPDATE BLUEPRINT' : 'CREATE BLUEPRINT'}\n            </Button>\n          </div>
+        </form>\n      </Modal>
 
       <Modal isOpen={isConfigModal} onClose={() => setIsConfigModal(false)} title="Fleet Configuration">
         <form className="space-y-4" onSubmit={(e) => {
