@@ -60,7 +60,7 @@ export const Input = ({ label, name, type = 'text', placeholder, defaultValue, v
       required={required}
       className={`bg-noc-bg3 border border-noc-border p-2 text-xs mono text-noc-text1 focus:outline-none focus:border-noc-green transition-colors w-full ${className}`}
     />
-  </div
+  </div>
 );
 
 interface ModalProps {
@@ -83,14 +83,14 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
           {children}
         </div>
       </div>
-    </div
+    </div>
   );
 };
 
 export const Card = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
   <div className={`bg-noc-bg2 border border-noc-border rounded-2xl ${className}`}>
     {children}
-  </div
+  </div>
 );
 
 interface SelectProps {
@@ -117,5 +117,5 @@ export const Select = ({ label, name, options, defaultValue, value, onChange, cl
         <option key={opt.value} value={opt.value}>{opt.label}</option>
       ))}
     </select>
-  </div
+  </div>
 );
