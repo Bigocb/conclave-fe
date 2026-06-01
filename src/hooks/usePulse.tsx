@@ -25,9 +25,10 @@ export function PulseProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!org?.id) return;
 
-    // Connection to the Render-hosted Pulse Daemon
-    // Format: /v1/pulse?orgId=...
-    const eventSource = new EventSource(`https://conclave-bp4o.onrender.com/pulse?orgId=${org.id}`);
+    // SSE requires persistent connection — connect to Render (not Vercel serverless)
+    // Pass token as query param since EventSource can't set Authorization headers
+    const token = localStorage.getItem('access_token') || '';
+    const eventSource = new EventSource(`https://conclave-bp4o.onrender.com/pulse?token=${token}&orgId=${org.id}`);
 
     setStatus('connecting');
 

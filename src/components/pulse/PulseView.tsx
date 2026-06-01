@@ -114,7 +114,9 @@ export default function PulseView() {
   useEffect(() => {
     if (!org?.id) return;
     const token = localStorage.getItem('access_token') || '';
-    const url = `https://conclave-bp4o.onrender.com/pulse?orgId=${org.id}&token=${token}`;
+    // SSE requires persistent connection — connect to Render (not Vercel serverless)
+    // Pass token as query param since EventSource can't set Authorization headers
+    const url = `https://conclave-bp4o.onrender.com/pulse?token=${token}&orgId=${org.id}`;
 
     const es = new EventSource(url);
     esRef.current = es;
