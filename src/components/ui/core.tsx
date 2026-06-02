@@ -92,3 +92,30 @@ export const Card = ({ children, className = '' }: { children: React.ReactNode, 
     {children}
   </div>
 );
+
+interface SelectProps {
+  label: string;
+  name: string;
+  options: { value: string; label: string }[];
+  defaultValue?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  className?: string;
+}
+
+export const Select = ({ label, name, options, defaultValue, value, onChange, className = '' }: SelectProps) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs mono text-noc-text3 uppercase tracking-wider">{label}</label>
+    <select 
+      name={name}
+      defaultValue={defaultValue}
+      value={value}
+      onChange={onChange}
+      className={`bg-noc-bg3 border border-noc-border p-2 text-xs mono text-noc-text1 focus:outline-none focus:border-noc-green transition-colors w-full ${className}`}
+    >
+      {options.map(opt => (
+        <option key={opt.value} value={opt.value}>{opt.label}</option>
+      ))}
+    </select>
+  </div>
+);
