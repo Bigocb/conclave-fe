@@ -30,10 +30,44 @@ const STATUS_LABELS: Record<OpinionStatus, string> = {
   critiquing: 'Critiquing',
   synthesizing: 'Synthesizing',
   voting: 'Voting',
-  consensus_reached: '✅ Consensus',
-  consensus_not_reached: '⛔ Not Reached',
+  consensus_reached: 'Consensus',
+  consensus_not_reached: 'Not Reached',
   closed: 'Closed',
 };
+
+/** Accessible status badge using aria-label instead of bare emoji */
+function StatusBadge({ status }: { status: OpinionStatus }) {
+  const a11yLabel: Record<OpinionStatus, string> = {
+    open: 'Status: Open',
+    critiquing: 'Status: Critiquing',
+    synthesizing: 'Status: Synthesizing',
+    voting: 'Status: Voting',
+    consensus_reached: 'Status: Consensus reached',
+    consensus_not_reached: 'Status: Consensus not reached',
+    closed: 'Status: Closed',
+  };
+
+  const icon: Record<OpinionStatus, string> = {
+    open: '',
+    critiquing: '',
+    synthesizing: '',
+    voting: '',
+    consensus_reached: '\u2713',
+    consensus_not_reached: '\u2717',
+    closed: '',
+  };
+
+  return (
+    <span
+      role="status"
+      aria-label={a11yLabel[status] || `Status: ${status}`}
+      className={`text-[10px] mono font-bold px-2 py-0.5 rounded-full border shrink-0 ${STATUS_BG[status] || 'bg-noc-text3/10 border-noc-text3/30'} ${STATUS_COLORS[status] || 'text-noc-text3'}`}
+    >
+      {icon[status] && <span aria-hidden="true">{icon[status]} </span>}
+      {STATUS_LABELS[status] || status}
+    </span>
+  );
+}
 
 function formatTime(ts: string | undefined | null): string {
   if (!ts) return '';
@@ -60,6 +94,24 @@ function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max) + '\u2026' : s;
 }
 
+/** Extract proposal text from a node's payload — tries multiple possible key shapes */
+function getProposalText(node: BlackboardNode): string | null {
+  if (node.kind !== 'proposal') return null;
+  const p = node.payload;
+  if (!p) return null;
+
+  // Backend stores proposal payload as { question, context }
+  if (typeof p.question === 'string' && p.question) return p.question;
+  // Dual-content nodes: narrative.message
+  if (p.narrative && typeof p.narrative.message === 'string' && p.narrative.message) return p.narrative.message;
+  // Structured.message
+  if (p.structured && typeof p.structured.message === 'string' && p.structured.message) return p.structured.message;
+  // Fallback: any string field
+  const strVal = Object.values(p).find(v => typeof v === 'string' && v.length > 5);
+  if (strVal) return strVal;
+  return null;
+}
+
 export default function OpinionFeed() {
   const queryClient = useQueryClient();
   const [isAskOpen, setIsAskOpen] = useState(false);
@@ -67,6 +119,7 @@ export default function OpinionFeed() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [detailGraph, setDetailGraph] = useState<{ nodes: BlackboardNode[]; edges: BlackboardEdge[] } | null>(null);
   const [loadingGraph, setLoadingGraph] = useState(false);
+  const [graphError, setGraphError] = useState<string | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['opinions'],
@@ -89,10 +142,12 @@ export default function OpinionFeed() {
     setSelectedOpinion(opinion);
     setIsDetailOpen(true);
     setLoadingGraph(true);
+    setGraphError(null);
     try {
       const res = await api.get<any>(`/v1/opinions/${opinion.id}/graph`);
       setDetailGraph(res || { nodes: [], edges: [] });
     } catch (e: any) {
+      setGraphError(e?.message || 'Failed to load graph');
       setDetailGraph(null);
     } finally {
       setLoadingGraph(false);
@@ -154,9 +209,7 @@ export default function OpinionFeed() {
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-[10px] font-mono text-noc-text3 truncate">{opinion.id}</span>
                 </div>
-                <span className={`text-[10px] mono font-bold px-2 py-0.5 rounded-full border shrink-0 ${STATUS_BG[opinion.status] || 'bg-noc-text3/10 border-noc-text3/30'} ${STATUS_COLORS[opinion.status] || 'text-noc-text3'}`}>
-                  {STATUS_LABELS[opinion.status] || opinion.status}
-                </span>
+                <StatusBadge status={opinion.status} />
               </div>
               <div className="text-sm mb-2 text-noc-text1 line-clamp-2 break-words font-medium">
                 {truncate(opinion.question, 300)}
@@ -181,18 +234,20 @@ export default function OpinionFeed() {
       )}
 
       {/* Detail Modal */}
-      <Modal isOpen={isDetailOpen} onClose={() => { setIsDetailOpen(false); setSelectedOpinion(null); setDetailGraph(null); }} title="Opinion Detail">
+      <Modal isOpen={isDetailOpen} onClose={() => { setIsDetailOpen(false); setSelectedOpinion(null); setDetailGraph(null); setGraphError(null); }} title="Opinion Detail">
         {loadingGraph ? (
           <div className="h-48 flex items-center justify-center">
             <div className="w-6 h-6 border-2 border-noc-green border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : graphError ? (
+          <div className="h-48 flex items-center justify-center">
+            <p className="text-noc-rose mono text-xs uppercase font-bold">{graphError}</p>
           </div>
         ) : selectedOpinion && (
           <div className="space-y-6">
             {/* Status + Channel */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`text-xs font-bold px-2 py-1 rounded uppercase ${STATUS_BG[selectedOpinion.status] || 'bg-noc-text3/10'} ${STATUS_COLORS[selectedOpinion.status] || 'text-noc-text3'}`}>
-                {STATUS_LABELS[selectedOpinion.status] || selectedOpinion.status}
-              </span>
+              <StatusBadge status={selectedOpinion.status} />
               <span className="text-xs text-noc-text3">Channel: {selectedOpinion.channel}</span>
               {selectedOpinion.requested_opinions && (
                 <span className="text-xs text-noc-text3">\xB7 {selectedOpinion.requested_opinions} requested</span>
@@ -220,6 +275,8 @@ export default function OpinionFeed() {
                 <h4 className="text-xs font-bold text-noc-text3 uppercase tracking-wider mb-4">
                   Discussion Graph
                 </h4>
+
+                {/* Stats grid */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div className="bg-noc-bg3 rounded-xl p-4 text-center border border-noc-border">
                     <p className="text-2xl font-bold text-noc-cyan">{detailGraph.nodes.length}</p>
@@ -230,6 +287,24 @@ export default function OpinionFeed() {
                     <p className="text-[10px] text-noc-text3 uppercase tracking-wider">Edges</p>
                   </div>
                 </div>
+
+                {/* Proposal node text */}
+                {(() => {
+                  const proposal = detailGraph.nodes.find(n => n.kind === 'proposal');
+                  const text = proposal ? getProposalText(proposal) : null;
+                  if (!text) return null;
+                  return (
+                    <div className="mb-4 p-3 bg-noc-bg3 rounded-xl border border-noc-border">
+                      <p className="text-[10px] font-bold text-noc-cyan uppercase tracking-wider mb-1">
+                        Proposal
+                      </p>
+                      <p className="text-xs text-noc-text1 line-clamp-3">
+                        {truncate(text, 300)}
+                      </p>
+                    </div>
+                  );
+                })()}
+
                 {/* Node kind breakdown */}
                 {detailGraph.nodes.length > 0 && (
                   <div className="space-y-1 p-3 bg-noc-bg3 rounded-xl border border-noc-border">
@@ -248,14 +323,23 @@ export default function OpinionFeed() {
 
                 {/* Consensus status */}
                 {detailGraph.nodes.some(n => n.kind === 'consensus') && (
-                  <div className={`mt-4 p-3 rounded-xl border text-xs font-bold text-center ${
-                    detailGraph.nodes.some(n => n.kind === 'consensus' && n.payload?.approved === true)
-                      ? 'bg-noc-green/10 border-noc-green/30 text-noc-green'
-                      : 'bg-noc-amber/10 border-noc-amber/30 text-noc-amber'
-                  }`}>
+                  <div
+                    role="status"
+                    aria-label={
+                      detailGraph.nodes.some(n => n.kind === 'consensus' && n.payload?.approved === true)
+                        ? 'Consensus reached'
+                        : 'Consensus not reached'
+                    }
+                    className={`mt-4 p-3 rounded-xl border text-xs font-bold text-center ${
+                      detailGraph.nodes.some(n => n.kind === 'consensus' && n.payload?.approved === true)
+                        ? 'bg-noc-green/10 border-noc-green/30 text-noc-green'
+                        : 'bg-noc-amber/10 border-noc-amber/30 text-noc-amber'
+                    }`}
+                  >
                     {detailGraph.nodes.filter(n => n.kind === 'consensus' && n.payload?.approved === true).length > 0
-                      ? '\u2705 Consensus Reached'
-                      : '\u23F3 Awaiting Consensus'}
+                      ? <><span aria-hidden="true">\u2713 </span>Consensus Reached</>
+                      : <><span aria-hidden="true">\u23F3 </span>Awaiting Consensus</>
+                    }
                   </div>
                 )}
               </div>
