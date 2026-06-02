@@ -74,4 +74,4 @@ export class ConclaveApiClient {
   }
 }
 
-export const api = new ConclaveApiClient(import.meta.env.VITE_API_URL || 'https://conclave-bp4o.onrender.com');
+export const api = new ConclaveApiClient('https://conclave-bp4o.onrender.com');
