@@ -30,6 +30,7 @@ export default function FleetView() {
   const [isReviewerModal, setIsReviewerModal] = useState(false);
   const [editingReviewer, setEditingReviewer] = useState<Reviewer | null>(null);
   const [isConfigModal, setIsConfigModal] = useState(false);
+  const [reviewerProvider, setReviewerProvider] = useState('');
 
   const orgId = org?.id;
 
@@ -40,6 +41,19 @@ export default function FleetView() {
       return (res?.data || res || []) as any[];
     },
     enabled: !!orgId,
+  });
+
+  // Fetch models when provider changes
+  const { data: reviewerModels, isLoading: reviewerModelsLoading } = useQuery({
+    queryKey: ['reviewer-models', reviewerProvider],
+    queryFn: async () => {
+      if (!reviewerProvider || reviewerProvider === 'custom') return [];
+      const res = await api.get<any>(`/v1/providers/${reviewerProvider}/models`);
+      return (res?.data || res || []) as { id: string; provider: string }[];
+    },
+    enabled: !!reviewerProvider && reviewerProvider !== 'custom',
+    staleTime: 30_000,
+    retry: 1,
   });
 
   const { data: status } = useQuery({
@@ -215,7 +229,7 @@ export default function FleetView() {
         )}
       </div>
 
-      <Modal isOpen={isReviewerModal} onClose={() => { setIsReviewerModal(false); setEditingReviewer(null); }}
+      <Modal isOpen={isReviewerModal} onClose={() => { setIsReviewerModal(false); setEditingReviewer(null); setReviewerProvider(''); }}
         title={editingReviewer ? 'Edit Reviewer Blueprint' : 'New Reviewer Blueprint'}>
         <form className="space-y-4" onSubmit={(e) => {
           e.preventDefault();
@@ -231,18 +245,38 @@ export default function FleetView() {
               label="Provider" 
               name="provider" 
               defaultValue={editingReviewer?.provider}
+              value={reviewerProvider}
+              onChange={(e) => setReviewerProvider(e.target.value)}
               options={[
                 { value: 'custom', label: 'Custom' },
                 ...(vaultKeys?.map(k => ({ value: k.provider, label: k.provider })) || [])
               ]}
             />
-            <Input label="Model" name="model" defaultValue={editingReviewer?.model} />
+            {reviewerProvider === 'custom' ? (
+              <Input label="Model" name="model" defaultValue={editingReviewer?.model} placeholder="e.g. my-custom-model" />
+            ) : (
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs mono text-noc-text3 uppercase tracking-wider">
+                  Model {reviewerModelsLoading && <span className="text-noc-text3 animate-pulse ml-2">(loading...)</span>}
+                </label>
+                <select
+                  name="model"
+                  defaultValue={editingReviewer?.model || ''}
+                  className="bg-noc-bg3 border border-noc-border p-2 text-xs mono text-noc-text1 focus:outline-none focus:border-noc-green transition-colors w-full"
+                >
+                  <option value="">-- Select model --</option>
+                  {(reviewerModels || []).map(m => (
+                    <option key={m.id} value={m.id}>{m.id}</option>
+                  ))}
+                </select>
+              </div>
+            )}
             <Input label="Mode (auto/manual)" name="mode" defaultValue={editingReviewer?.mode || 'auto'} />
             <Input label="Replicas" name="replicas" type="number" defaultValue={String(editingReviewer?.replicas || 1)} />
             <Input label="Confidence Threshold" name="confidence" type="number" defaultValue={String(editingReviewer?.confidenceThreshold || 8)} />
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="secondary" onClick={() => { setIsReviewerModal(false); setEditingReviewer(null); }}>CANCEL</Button>
+            <Button variant="secondary" onClick={() => { setIsReviewerModal(false); setEditingReviewer(null); setReviewerProvider(''); }}>CANCEL</Button>
             <Button type="submit" disabled={saveReviewerMutation.isPending}>
               {saveReviewerMutation.isPending ? 'SAVING...' : editingReviewer ? 'UPDATE BLUEPRINT' : 'CREATE BLUEPRINT'}
             </Button>
