@@ -239,7 +239,7 @@ export default function TaskFeed() {
               {reviews.map((r) => (
                 <div key={r.id} className="bg-noc-bg3 border border-noc-border rounded-xl p-4">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-[10px] font-mono text-noc-text3">{r.reviewer_id || r.agent_id || r.id}</span>
+                    <span className="text-[10px] font-mono text-noc-text3">{r.reviewer_name || r.reviewer_id || r.agent_id || r.id}</span>
                     <span className={`text-xs font-bold ${r.approved ? 'text-noc-green' : 'text-noc-rose'}`}>
                       {r.approved ? 'APPROVED' : 'DENIED'}
                     </span>
