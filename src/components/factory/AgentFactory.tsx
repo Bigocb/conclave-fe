@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, Input, Button, Modal, Select } from '../ui/core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '../../lib/api';
+import { api } from '../../api/client';
 
 interface Agent {
   id: string;
   name: string;
+  type?: string;
   model?: string;
   provider?: string;
   status?: string;
