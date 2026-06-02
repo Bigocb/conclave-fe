@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Activity, ShieldAlert, UserCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Activity, ShieldAlert, UserCircle, LogOut, Coins } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useAuthStore } from './store/authStore';
 import { usePulse } from './hooks/usePulse';
+import { useBudget } from './hooks/useBudget';
 import AgentFactory from './components/factory/AgentFactory';
 import PrincipalsView from './components/principals/PrincipalsView';
 import VaultView from './components/vault/VaultView';
@@ -34,6 +35,7 @@ export default function App() {
   const { isAuthenticated, isLoading, logout } = useAuth();
   const { agent, org, user } = useAuthStore();
   const { status } = usePulse();
+  const { budget } = useBudget();
   const [activeView, setActiveView] = useState('dashboard');
   const [isMobile, setIsMobile] = useState(false);
 
@@ -142,6 +144,15 @@ export default function App() {
               <div className="w-2 h-2 bg-noc-green rounded-full animate-pulse" />
               <span className="truncate text-xs mono font-bold text-noc-text2 group-hover:text-noc-text1 transition-colors">{user?.name || agent?.name || 'Unknown Identity'}</span>
             </div>
+            {budget && (
+              <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 flex items-center justify-between group">
+                <div className="flex items-center gap-2">
+                  <Coins size={14} className="text-amber-400" />
+                  <span className="text-xs mono text-amber-400 font-bold">Budget</span>
+                </div>
+                <span className="text-xs mono font-bold text-amber-300">{budget.available}</span>
+              </div>
+            )}
             <button onClick={logout} className="flex items-center gap-3 px-4 py-2 text-sm text-noc-text2 hover:text-noc-text1 transition-all duration-200 group">
               <LogOut size={16} className="group-hover:translate-x-1 transition-transform" />
               <span className="uppercase tracking-widest text-[10px] font-bold">Logout</span>
