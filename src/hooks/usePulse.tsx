@@ -28,7 +28,7 @@ export function PulseProvider({ children }: { children: React.ReactNode }) {
     // SSE requires persistent connection — connect to Render (not Vercel serverless)
     // Pass token as query param since EventSource can't set Authorization headers
     const token = localStorage.getItem('access_token') || '';
-    const eventSource = new EventSource(`https://conclave-bp4o.onrender.com/pulse?token=${encodeURIComponent(token)}&orgId=${org.id}`);
+    const eventSource = new EventSource(`https://conclave-bp4o.onrender.com/pulse?token=${token}&orgId=${org.id}`);
 
     setStatus('connecting');
 
