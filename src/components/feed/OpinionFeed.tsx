@@ -133,16 +133,8 @@ export default function OpinionFeed() {
       setAskError(null);
     },
     onError: (err: any) => {
-      const msg = err?.response?.data?.error?.message || err?.message || 'Failed to create opinion.';
+      const msg = err?.response?.data?.error?.message || err?.message || 'Failed to create opinion. Check budget and channel subscription.';
       setAskError(msg);
-    }
-  });
-
-  const grantBudgetMutation = useMutation({
-    mutationFn: (amount: number) => api.post(`/v1/principals/${selectedPrincipalId}/budget/grant`, { amount, reason: 'manual grant from UI' }),
-    onSuccess: () => {
-      setAskError(null);
-      queryClient.invalidateQueries({ queryKey: ['principals'] });
     }
   });
 
