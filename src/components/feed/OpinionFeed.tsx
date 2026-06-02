@@ -143,7 +143,7 @@ export default function OpinionFeed() {
       setAskError(null);
     },
     onError: (err: any) => {
-      const msg = err?.response?.data?.error?.message || err?.message || 'Failed to create opinion.';
+      const msg = err?.response?.data?.error?.message || err?.message || 'Failed to create opinion. Check budget and channel subscription.';
       setAskError(msg);
     }
   });
