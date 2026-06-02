@@ -25,7 +25,6 @@ interface Task {
 interface Review {
   id: string;
   reviewer_id?: string;
-  reviewer_name?: string | null;
   agent_id?: string;
   approved: boolean;
   comment?: string;
