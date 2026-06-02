@@ -66,6 +66,7 @@ export default function App() {
     { id: 'fleet', label: 'Fleet Control', icon: Users },
     { id: 'agents', label: 'All Agents', icon: Users },
     { id: 'profiles', label: 'Profiles', icon: UserCircle },
+    { id: 'principals', label: 'Principals', icon: UserCircle },
     { id: 'feed', label: 'Feed', icon: ShieldAlert },
     { id: 'opinions', label: 'Opinions', icon: MessageSquareText },
     { id: 'vault', label: 'Trust Vault', icon: ShieldAlert },
