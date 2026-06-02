@@ -23,16 +23,16 @@ export default function LoginView() {
         baseURL: 'https://conclave-bp4o.onrender.com',
         headers: { 'Content-Type': 'application/json' }
       });
-      const response = await renderApi.post<{ data: { token: string, user: any, orgId: string } }>('/v1/auth/login', {
+      const response = await renderApi.post('/v1/auth/login', {
         email,
         password
       });
       
-      const data = response.data.data;
-
-      const orgId = data.orgId || 'unknown';
-      const token = data.token;
-      const user = data.user;
+      // Render returns { user, orgId, token } directly (not wrapped in data)
+      const loginData = response.data;
+      const orgId = loginData.orgId || 'unknown';
+      const token = loginData.token;
+      const user = loginData.user;
 
       if (!token) throw new Error('Authentication successful but no token was provided');
 
