@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
 import type { Agent } from '../../types/api';
-import { Card, Input, Button, Modal, Select } from '../ui/core';
+import { Card, Input, Button, Modal } from '../ui/core';
 import { Plus, Trash2, Edit3 } from 'lucide-react';
 
 export default function AgentFactory() {
@@ -13,14 +13,6 @@ export default function AgentFactory() {
   const { data: agents, isLoading } = useQuery({
     queryKey: ['agents'],
     queryFn: () => api.get<Agent[]>('/v1/agents'),
-  });
-
-  const { data: vaultKeys } = useQuery({
-    queryKey: ['vault'],
-    queryFn: async () => {
-      const res = await api.get<any>('/v1/vault/keys');
-      return (res?.data || res || []) as any[];
-    },
   });
 
   const registerMutation = useMutation({
@@ -149,15 +141,7 @@ export default function AgentFactory() {
             />
           </div>
           <div className="col-span-1">
-            <Select 
-              label="Provider" 
-              name="provider" 
-              defaultValue={editAgent?.provider}
-              options={[
-                { value: 'custom', label: 'Custom' },
-                ...(vaultKeys?.map(k => ({ value: k.provider, label: k.provider })) || [])
-              ]}
-            />
+            <Input label="Provider" name="provider" defaultValue={editAgent?.provider} />
           </div>
           <div className="col-span-2">
             <Input label="Model Identifier" name="model" defaultValue={editAgent?.model} />
