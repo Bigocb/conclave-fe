@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useAuthStore } from '../../store/authStore';
 import { api } from '../../api/client';
 import { Button } from '../ui/core';
@@ -18,21 +17,16 @@ export default function LoginView() {
     setError(null);
 
     try {
-      // Login against Render (not Vercel) so the token works with Pulse SSE
-      const renderApi = axios.create({
-        baseURL: 'https://conclave-bp4o.onrender.com',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      const response = await renderApi.post('/v1/auth/login', {
+      const response = await api.post<{ token: string, user: any, orgId: string }>('/v1/auth/login', {
         email,
         password
       });
       
-      // Render returns { user, orgId, token } directly (not wrapped in data)
-      const loginData = response.data;
-      const orgId = loginData.orgId || 'unknown';
-      const token = loginData.token;
-      const user = loginData.user;
+      if (!response) throw new Error('Server returned an empty response');
+
+      const orgId = response.orgId || 'unknown';
+      const token = response.token;
+      const user = response.user;
 
       if (!token) throw new Error('Authentication successful but no token was provided');
 
