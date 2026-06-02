@@ -104,6 +104,7 @@ export default function OpinionFeed() {
   const [selectedOpinion, setSelectedOpinion] = useState<Opinion | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [detailTab, setDetailTab] = useState<DetailTab>('conversation');
+  const [askError, setAskError] = useState<string | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['opinions'],
@@ -129,6 +130,11 @@ export default function OpinionFeed() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['opinions'] });
       setIsAskOpen(false);
+      setAskError(null);
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.error?.message || err?.message || 'Failed to create opinion. Check budget and channel subscription.';
+      setAskError(msg);
     }
   });
 
@@ -272,24 +278,36 @@ export default function OpinionFeed() {
       </Modal>
 
       {/* Ask Opinion Modal */}
-      <Modal isOpen={isAskOpen} onClose={() => setIsAskOpen(false)} title="Ask the Fleet">
+      <Modal isOpen={isAskOpen} onClose={() => { setIsAskOpen(false); setAskError(null); }} title="Ask the Fleet">
         <form
           className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
+            setAskError(null);
             const fd = new FormData(e.currentTarget);
+            const question = (fd.get('question') as string || '').trim();
+            if (question.length < 10) {
+              setAskError('Question must be at least 10 characters');
+              return;
+            }
             const payload: any = {
-              question: fd.get('question'),
+              question,
               channel: fd.get('channel'),
-              context: fd.get('context') || undefined,
               requested_opinions: parseInt(fd.get('requested_opinions') as string) || 3,
             };
+            const context = (fd.get('context') as string || '').trim();
+            if (context) payload.context = context;
             askMutation.mutate(payload);
           }}
         >
+          {askError && (
+            <div className="p-3 bg-noc-rose/10 border border-noc-rose/30 rounded-xl">
+              <p className="text-xs text-noc-rose font-bold">{askError}</p>
+            </div>
+          )}
           <div>
             <label className="block text-xs mono text-noc-text3 uppercase mb-1">Question</label>
-            <textarea name="question" required rows={3} className="w-full bg-noc-bg3 border border-noc-border p-3 rounded-lg text-noc-text1 focus:border-noc-green outline-none transition-all text-sm" placeholder="What do you want the fleet to weigh in on?" />
+            <textarea name="question" required minLength={10} rows={3} className="w-full bg-noc-bg3 border border-noc-border p-3 rounded-lg text-noc-text1 focus:border-noc-green outline-none transition-all text-sm" placeholder="What do you want the fleet to weigh in on? (min 10 chars)" />
           </div>
           <div>
             <label className="block text-xs mono text-noc-text3 uppercase mb-1">Context (optional)</label>
