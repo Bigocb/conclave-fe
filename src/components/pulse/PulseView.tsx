@@ -116,8 +116,7 @@ export default function PulseView() {
     const token = localStorage.getItem('access_token') || '';
     // SSE requires persistent connection — connect to Render (not Vercel serverless)
     // Pass token as query param since EventSource can't set Authorization headers
-    const apiUrl = import.meta.env.VITE_API_URL || 'https://conclave-bp4o.onrender.com';
-    const url = `${apiUrl}/pulse?token=${encodeURIComponent(token)}&orgId=${org.id}`;
+    const url = `https://conclave-bp4o.onrender.com/pulse?token=${encodeURIComponent(token)}&orgId=${org.id}`;
 
     const es = new EventSource(url);
     esRef.current = es;

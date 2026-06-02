@@ -15,7 +15,8 @@ interface PulseContextType {
 
 const PulseContext = createContext<PulseContextType | undefined>(undefined);
 
-const PULSE_URL = (import.meta.env.VITE_API_URL || 'https://conclave-bp4o.onrender.com') + '/pulse';
+// Pulse SSE requires persistent connection — use Render (not Vercel serverless)
+const PULSE_URL = 'https://conclave-bp4o.onrender.com/pulse';
 const MAX_RETRIES = 5;
 const BASE_DELAY_MS = 2000;
 
