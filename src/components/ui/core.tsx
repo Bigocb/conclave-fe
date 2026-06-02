@@ -89,6 +89,35 @@ export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
   );
 };
 
+interface SelectProps {
+  label: string;
+  name: string;
+  value?: string;
+  defaultValue?: string;
+  onChange?: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  placeholder?: string;
+  required?: boolean;
+  className?: string;
+  children: React.ReactNode;
+}
+
+export const Select = ({ label, name, value, defaultValue, onChange, placeholder, required, className = '', children }: SelectProps) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs mono text-slate-500 uppercase tracking-wider">{label}</label>
+    <select
+      name={name}
+      value={value}
+      defaultValue={defaultValue}
+      onChange={onChange}
+      required={required}
+      className={`bg-black border border-aviation-border p-2 text-xs mono text-white focus:outline-none focus:border-aviation-accent transition-colors w-full ${className}`}
+    >
+      {placeholder && <option value="" className="text-slate-500">{placeholder}</option>}
+      {children}
+    </select>
+  </div>
+);
+
 export const Card = ({ children, className = '' }: { children: React.ReactNode, className?: string }) => (
   <div className={`bg-aviation-panel border border-aviation-border rounded-lg ${className}`}>
     {children}

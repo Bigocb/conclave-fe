@@ -77,6 +77,7 @@ export interface Review {
   id: string;
   task_id: string;
   agent_id: string;
+  reviewer_name?: string;
   scores: Record<string, number>;
   weighted_overall: number;
   comment: string;
