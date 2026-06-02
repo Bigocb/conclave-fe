@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
 import { Modal, Button } from '../ui/core';
-import { MessageSquareText } from 'lucide-react';
+import { MessageSquareText, UserCircle } from 'lucide-react';
 import OpinionThread from './OpinionThread';
 import BlackboardView from './BlackboardView';
-import type { Opinion, OpinionStatus, BlackboardNode, BlackboardEdge } from '../../types/api';
+import type { Opinion, OpinionStatus, BlackboardNode, BlackboardEdge, Principal } from '../../types/api';
+import { useAuthStore } from '../../store/authStore';
 
 const STATUS_COLORS: Record<OpinionStatus, string> = {
   open: 'text-noc-amber',
@@ -106,6 +107,8 @@ export default function OpinionFeed() {
   const [detailTab, setDetailTab] = useState<DetailTab>('conversation');
   const [askError, setAskError] = useState<string | null>(null);
 
+  const { selectedPrincipalId, setSelectedPrincipal } = useAuthStore();
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['opinions'],
     queryFn: async () => {
@@ -113,6 +116,13 @@ export default function OpinionFeed() {
       const opinions = res?.opinions || res?.data?.opinions || [];
       return opinions as Opinion[];
     }
+  });
+
+  // Fetch principals for the dropdown
+  const { data: principals } = useQuery({
+    queryKey: ['principals'],
+    queryFn: () => api.get<Principal[]>('/v1/principals'),
+    enabled: isAskOpen,
   });
 
   const { data: graphData, isLoading: loadingGraph } = useQuery({
@@ -135,14 +145,6 @@ export default function OpinionFeed() {
     onError: (err: any) => {
       const msg = err?.response?.data?.error?.message || err?.message || 'Failed to create opinion.';
       setAskError(msg);
-    }
-  });
-
-  const grantBudgetMutation = useMutation({
-    mutationFn: (amount: number) => api.post(`/v1/principals/${selectedPrincipalId}/budget/grant`, { amount, reason: 'manual grant from UI' }),
-    onSuccess: () => {
-      setAskError(null);
-      queryClient.invalidateQueries({ queryKey: ['principals'] });
     }
   });
 
@@ -301,10 +303,13 @@ export default function OpinionFeed() {
             const payload: any = {
               question,
               channel: fd.get('channel'),
-              requested_opinions: parseInt(fd.get('requested_opinions') as string) || 3,
+              requested_critics: parseInt(fd.get('requested_critics') as string) || 3,
             };
             const context = (fd.get('context') as string || '').trim();
             if (context) payload.context = context;
+            // Add principal_id if selected
+            const principalId = fd.get('principal_id') as string;
+            if (principalId) payload.principal_id = principalId;
             askMutation.mutate(payload);
           }}
         >
@@ -313,6 +318,25 @@ export default function OpinionFeed() {
               <p className="text-xs text-noc-rose font-bold">{askError}</p>
             </div>
           )}
+          
+          {/* Principal Selector */}
+          <div>
+            <label className="block text-xs mono text-noc-text3 uppercase mb-1 flex items-center gap-2">
+              <UserCircle size={14} />
+              As Principal
+            </label>
+            <select 
+              name="principal_id" 
+              value={selectedPrincipalId || ''}
+              onChange={(e) => setSelectedPrincipal(e.target.value || null)}
+              className="w-full bg-noc-bg3 border border-noc-border p-3 rounded-lg text-noc-text1 focus:border-noc-green outline-none transition-all text-sm"
+            >
+              <option value="">Select a principal...</option>
+              {principals?.map((p: Principal) => (
+                <option key={p.id} value={p.id}>{p.name} ({p.budget} credits)</option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className="block text-xs mono text-noc-text3 uppercase mb-1">Question</label>
             <textarea name="question" required minLength={10} rows={3} className="w-full bg-noc-bg3 border border-noc-border p-3 rounded-lg text-noc-text1 focus:border-noc-green outline-none transition-all text-sm" placeholder="What do you want the fleet to weigh in on? (min 10 chars)" />
@@ -334,8 +358,8 @@ export default function OpinionFeed() {
               </select>
             </div>
             <div>
-              <label className="block text-xs mono text-noc-text3 uppercase mb-1">Requested Opinions</label>
-              <input name="requested_opinions" type="number" defaultValue={3} min={1} max={10} className="w-full bg-noc-bg3 border border-noc-border p-3 rounded-lg text-noc-text1 focus:border-noc-green outline-none transition-all text-sm" />
+              <label className="block text-xs mono text-noc-text3 uppercase mb-1">Requested Critics</label>
+              <input name="requested_critics" type="number" defaultValue={3} min={1} max={10} className="w-full bg-noc-bg3 border border-noc-border p-3 rounded-lg text-noc-text1 focus:border-noc-green outline-none transition-all text-sm" />
             </div>
           </div>
           <Button type="submit" disabled={askMutation.isPending} className="w-full py-3">
