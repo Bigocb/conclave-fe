@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
 import { Modal, Button } from '../ui/core';
 import { MessageSquareText } from 'lucide-react';
+import OpinionThread from './OpinionThread';
 import type { Opinion, OpinionStatus, BlackboardNode, BlackboardEdge } from '../../types/api';
 
 const STATUS_COLORS: Record<OpinionStatus, string> = {
@@ -94,32 +95,11 @@ function truncate(s: string, max: number): string {
   return s.length > max ? s.slice(0, max) + '\u2026' : s;
 }
 
-/** Extract proposal text from a node's payload — tries multiple possible key shapes */
-function getProposalText(node: BlackboardNode): string | null {
-  if (node.kind !== 'proposal') return null;
-  const p = node.payload;
-  if (!p) return null;
-
-  // Backend stores proposal payload as { question, context }
-  if (typeof p.question === 'string' && p.question) return p.question;
-  // Dual-content nodes: narrative.message
-  if (p.narrative && typeof p.narrative.message === 'string' && p.narrative.message) return p.narrative.message;
-  // Structured.message
-  if (p.structured && typeof p.structured.message === 'string' && p.structured.message) return p.structured.message;
-  // Fallback: any string field
-  const strVal = Object.values(p).find(v => typeof v === 'string' && v.length > 5);
-  if (strVal) return strVal;
-  return null;
-}
-
 export default function OpinionFeed() {
   const queryClient = useQueryClient();
   const [isAskOpen, setIsAskOpen] = useState(false);
   const [selectedOpinion, setSelectedOpinion] = useState<Opinion | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [detailGraph, setDetailGraph] = useState<{ nodes: BlackboardNode[]; edges: BlackboardEdge[] } | null>(null);
-  const [loadingGraph, setLoadingGraph] = useState(false);
-  const [graphError, setGraphError] = useState<string | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['opinions'],
@@ -130,6 +110,16 @@ export default function OpinionFeed() {
     }
   });
 
+  const { data: graphData, isLoading: loadingGraph, error: graphQueryError } = useQuery({
+    queryKey: ['opinion-graph', selectedOpinion?.id],
+    queryFn: async () => {
+      if (!selectedOpinion) return null;
+      const res = await api.get<any>(`/v1/opinions/${selectedOpinion.id}/graph`);
+      return (res || { nodes: [], edges: [] }) as { nodes: BlackboardNode[]; edges: BlackboardEdge[] };
+    },
+    enabled: !!selectedOpinion && isDetailOpen,
+  });
+
   const askMutation = useMutation({
     mutationFn: (data: any) => api.post('/v1/opinions', data),
     onSuccess: () => {
@@ -138,20 +128,9 @@ export default function OpinionFeed() {
     }
   });
 
-  const openDetail = async (opinion: Opinion) => {
+  const openDetail = (opinion: Opinion) => {
     setSelectedOpinion(opinion);
     setIsDetailOpen(true);
-    setLoadingGraph(true);
-    setGraphError(null);
-    try {
-      const res = await api.get<any>(`/v1/opinions/${opinion.id}/graph`);
-      setDetailGraph(res || { nodes: [], edges: [] });
-    } catch (e: any) {
-      setGraphError(e?.message || 'Failed to load graph');
-      setDetailGraph(null);
-    } finally {
-      setLoadingGraph(false);
-    }
   };
 
   const opinions = data || [];
@@ -233,125 +212,28 @@ export default function OpinionFeed() {
         </div>
       )}
 
-      {/* Detail Modal */}
-      <Modal isOpen={isDetailOpen} onClose={() => { setIsDetailOpen(false); setSelectedOpinion(null); setDetailGraph(null); setGraphError(null); }} title="Opinion Detail">
+      {/* Detail Modal with Conversation Tab */}
+      <Modal isOpen={isDetailOpen} onClose={() => { setIsDetailOpen(false); setSelectedOpinion(null); }} title="Opinion Thread">
         {loadingGraph ? (
           <div className="h-48 flex items-center justify-center">
             <div className="w-6 h-6 border-2 border-noc-green border-t-transparent rounded-full animate-spin" />
           </div>
-        ) : graphError ? (
+        ) : graphQueryError ? (
           <div className="h-48 flex items-center justify-center">
-            <p className="text-noc-rose mono text-xs uppercase font-bold">{graphError}</p>
+            <p className="text-noc-rose mono text-xs uppercase font-bold">Failed to load thread</p>
           </div>
+        ) : selectedOpinion && graphData ? (
+          <OpinionThread
+            opinion={selectedOpinion}
+            nodes={graphData.nodes}
+            edges={graphData.edges}
+          />
         ) : selectedOpinion && (
-          <div className="space-y-6">
-            {/* Status + Channel */}
-            <div className="flex flex-wrap items-center gap-2">
-              <StatusBadge status={selectedOpinion.status} />
-              <span className="text-xs text-noc-text3">Channel: {selectedOpinion.channel}</span>
-              {selectedOpinion.requested_opinions && (
-                <span className="text-xs text-noc-text3">\xB7 {selectedOpinion.requested_opinions} requested</span>
-              )}
-              <span className="text-[10px] font-mono text-noc-text3 ml-auto">{selectedOpinion.id}</span>
-            </div>
-
-            {/* Question */}
-            <div>
-              <p className="text-[10px] font-bold text-noc-text3 uppercase tracking-wider mb-1">Question</p>
-              <p className="text-sm text-noc-text1">{selectedOpinion.question}</p>
-            </div>
-
-            {/* Context */}
-            {selectedOpinion.context && (
-              <div>
-                <p className="text-[10px] font-bold text-noc-text3 uppercase tracking-wider mb-1">Context</p>
-                <p className="text-xs text-noc-text2 italic">{selectedOpinion.context}</p>
-              </div>
-            )}
-
-            {/* Graph Summary */}
-            {detailGraph && (
-              <div className="border border-noc-border rounded-2xl p-5 bg-noc-bg2">
-                <h4 className="text-xs font-bold text-noc-text3 uppercase tracking-wider mb-4">
-                  Discussion Graph
-                </h4>
-
-                {/* Stats grid */}
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-noc-bg3 rounded-xl p-4 text-center border border-noc-border">
-                    <p className="text-2xl font-bold text-noc-cyan">{detailGraph.nodes.length}</p>
-                    <p className="text-[10px] text-noc-text3 uppercase tracking-wider">Nodes</p>
-                  </div>
-                  <div className="bg-noc-bg3 rounded-xl p-4 text-center border border-noc-border">
-                    <p className="text-2xl font-bold text-noc-purple">{detailGraph.edges.length}</p>
-                    <p className="text-[10px] text-noc-text3 uppercase tracking-wider">Edges</p>
-                  </div>
-                </div>
-
-                {/* Proposal node text */}
-                {(() => {
-                  const proposal = detailGraph.nodes.find(n => n.kind === 'proposal');
-                  const text = proposal ? getProposalText(proposal) : null;
-                  if (!text) return null;
-                  return (
-                    <div className="mb-4 p-3 bg-noc-bg3 rounded-xl border border-noc-border">
-                      <p className="text-[10px] font-bold text-noc-cyan uppercase tracking-wider mb-1">
-                        Proposal
-                      </p>
-                      <p className="text-xs text-noc-text1 line-clamp-3">
-                        {truncate(text, 300)}
-                      </p>
-                    </div>
-                  );
-                })()}
-
-                {/* Node kind breakdown */}
-                {detailGraph.nodes.length > 0 && (
-                  <div className="space-y-1 p-3 bg-noc-bg3 rounded-xl border border-noc-border">
-                    {(['proposal', 'critique', 'synthesis', 'consensus'] as const).map(kind => {
-                      const count = detailGraph!.nodes.filter(n => n.kind === kind).length;
-                      if (count === 0) return null;
-                      return (
-                        <div key={kind} className="flex justify-between items-center text-xs">
-                          <span className="text-noc-text3 capitalize">{kind}</span>
-                          <span className="font-bold text-noc-text1">{count}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {/* Consensus status */}
-                {detailGraph.nodes.some(n => n.kind === 'consensus') && (
-                  <div
-                    role="status"
-                    aria-label={
-                      detailGraph.nodes.some(n => n.kind === 'consensus' && n.payload?.approved === true)
-                        ? 'Consensus reached'
-                        : 'Consensus not reached'
-                    }
-                    className={`mt-4 p-3 rounded-xl border text-xs font-bold text-center ${
-                      detailGraph.nodes.some(n => n.kind === 'consensus' && n.payload?.approved === true)
-                        ? 'bg-noc-green/10 border-noc-green/30 text-noc-green'
-                        : 'bg-noc-amber/10 border-noc-amber/30 text-noc-amber'
-                    }`}
-                  >
-                    {detailGraph.nodes.filter(n => n.kind === 'consensus' && n.payload?.approved === true).length > 0
-                      ? <><span aria-hidden="true">\u2713 </span>Consensus Reached</>
-                      : <><span aria-hidden="true">\u23F3 </span>Awaiting Consensus</>
-                    }
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Meta */}
-            <div className="text-xs text-noc-text3">
-              Created: {new Date(selectedOpinion.created_at).toLocaleString()}
-              {selectedOpinion.topology && <> \xB7 Topology: {selectedOpinion.topology}</>}
-              {selectedOpinion.budget_spent > 0 && <> \xB7 Budget: {selectedOpinion.budget_spent}</>}
-            </div>
-          </div>
+          <OpinionThread
+            opinion={selectedOpinion}
+            nodes={[]}
+            edges={[]}
+          />
         )}
       </Modal>
 
