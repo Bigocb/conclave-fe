@@ -85,6 +85,16 @@ export interface Review {
   created_at: string;
 }
 
+export interface Memory {
+  id: string;
+  principal_id: string;
+  key: string;
+  value: string;
+  category: 'convention' | 'preference' | 'fact' | 'general';
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Org {
   id: string;
   name: string;

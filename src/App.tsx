@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Users, Activity, ShieldAlert, UserCircle, LogOut, Coins } from 'lucide-react';
+import { LayoutDashboard, Users, Activity, ShieldAlert, UserCircle, LogOut, Coins, Brain } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useAuthStore } from './store/authStore';
 import { usePulse } from './hooks/usePulse';
@@ -12,6 +12,7 @@ import TaskFeed from './components/feed/TaskFeed';
 import FleetView from './components/fleet/FleetView';
 import ProfilesView from './components/profiles/ProfilesView';
 import PulseView from './components/pulse/PulseView';
+import MemoryView from './components/memory/MemoryView';
 import { MobileNav } from './components/ui/MobileNav';
 
 interface SidebarItemProps {
@@ -64,6 +65,7 @@ export default function App() {
   const views = [
     { id: 'dashboard', label: 'Fleet Overview', icon: LayoutDashboard },
     { id: 'pulse', label: 'Live Pulse', icon: Activity },
+    { id: 'memory', label: 'Memory', icon: Brain },
     { id: 'fleet', label: 'Fleet Control', icon: Users },
     { id: 'agents', label: 'All Agents', icon: Users },
     { id: 'profiles', label: 'Profiles', icon: UserCircle },
@@ -109,6 +111,7 @@ export default function App() {
   const renderView = () => {
     if (activeView === 'dashboard') return renderDashboard();
     if (activeView === 'pulse') return <PulseView />;
+    if (activeView === 'memory') return <MemoryView />;
     if (activeView === 'fleet') return <FleetView />;
     if (activeView === 'agents') return <AgentFactory />;
     if (activeView === 'factory') return <AgentFactory />;

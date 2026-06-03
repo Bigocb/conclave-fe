@@ -72,6 +72,33 @@ export class ConclaveApiClient {
     const response = await this.instance.delete<ConclaveResponse<T>>(url);
     return this.unwrap(response.data);
   }
+
+  // Memory-specific methods
+  async getMemories(category?: string): Promise<any[]> {
+    const params = category ? { category } : {};
+    const res = await this.get<{ memories: any[] }>('/v1/memory', params);
+    return res?.memories || [];
+  }
+
+  async getMemory(key: string): Promise<any> {
+    const res = await this.get<{ memory: any }>(`/v1/memory/${encodeURIComponent(key)}`);
+    return res?.memory;
+  }
+
+  async createMemory(key: string, value: string, category?: string): Promise<any> {
+    const res = await this.post<{ memory: any }>('/v1/memory', { key, value, category });
+    return res?.memory;
+  }
+
+  async deleteMemory(key: string): Promise<boolean> {
+    const res = await this.delete<{ deleted: boolean }>(`/v1/memory/${encodeURIComponent(key)}`);
+    return res?.deleted || false;
+  }
+
+  async searchMemories(query: string, limit?: number): Promise<any[]> {
+    const res = await this.post<{ memories: any[] }>('/v1/memory/search', { query, limit });
+    return res?.memories || [];
+  }
 }
 
 export const api = new ConclaveApiClient(import.meta.env.VITE_API_URL || 'https://conclave-bp4o.onrender.com');
