@@ -3,12 +3,19 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
 import type { Principal } from '../../types/api';
 import { Card, Input, Button, Modal } from '../ui/core';
-import { UserCircle, DollarSign, TrendingUp, Plus, Edit3 } from 'lucide-react';
+import { UserCircle, DollarSign, TrendingUp, Plus } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
+
+type ModalMode = 'view' | 'create' | 'grant';
 
 export default function PrincipalsView() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<ModalMode>('view');
   const [activePrincipal, setActivePrincipal] = useState<Principal | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const { org } = useAuthStore();
 
   const { data: principals, isLoading } = useQuery({
     queryKey: ['principals'],
@@ -21,8 +28,36 @@ export default function PrincipalsView() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['principals'] });
       setIsModalOpen(false);
+      setModalMode('view');
     }
   });
+
+  const createMutation = useMutation({
+    mutationFn: (data: { name: string, roles: string[] }) => 
+      api.post('/v1/principals', { ...data, org_id: org?.id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['principals'] });
+      setIsModalOpen(false);
+      setModalMode('view');
+    },
+    onError: (err: any) => {
+      setFormError(err?.response?.data?.error?.message || err?.message || 'Failed to create principal');
+    }
+  });
+
+  const openCreateModal = () => {
+    setActivePrincipal(null);
+    setModalMode('create');
+    setFormError(null);
+    setIsModalOpen(true);
+  };
+
+  const openGrantModal = (principal: Principal) => {
+    setActivePrincipal(principal);
+    setModalMode('grant');
+    setFormError(null);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -31,7 +66,7 @@ export default function PrincipalsView() {
           <h1 className="text-xl font-bold mono text-noc-text1 uppercase tracking-tighter">Principal Directory</h1>
           <p className="text-xs mono text-noc-text2">Manage network identities and attention budgets</p>
         </div>
-        <Button className="flex items-center gap-2">
+        <Button className="flex items-center gap-2" onClick={openCreateModal}>
           <Plus size={16} /> 
           <span className="text-xs mono">CREATE PRINCIPAL</span>
         </Button>
@@ -88,11 +123,10 @@ export default function PrincipalsView() {
                 <Button 
                   variant="secondary" 
                   className="text-[10px] px-3"
-                  onClick={() => { setActivePrincipal(p); setIsModalOpen(true); }}
+                  onClick={() => openGrantModal(p)}
                 >
                   GRANT BUDGET
                 </Button>
-                <Button variant="secondary" className="p-2"><Edit3 size={14} /></Button>
               </div>
             </Card>
           ))}
@@ -101,32 +135,70 @@ export default function PrincipalsView() {
 
       <Modal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title={activePrincipal ? `Grant Budget: ${activePrincipal.name}` : "Grant Budget"}
+        onClose={() => { setIsModalOpen(false); setModalMode('view'); }} 
+        title={
+          modalMode === 'create' ? 'Create Principal' :
+          modalMode === 'grant' ? `Grant Budget: ${activePrincipal?.name}` :
+          'Principal'
+        }
       >
-        <form 
-          className="flex flex-col gap-6"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            grantMutation.mutate({ 
-              id: activePrincipal!.id, 
-              amount: parseFloat(formData.get('amount') as string), 
-              reason: formData.get('reason') as string 
-            });
-          }}
-        >
-          <div className="grid grid-cols-1 gap-4">
-            <Input label="Amount to Grant" name="amount" type="number" step="0.01" required />
-            <Input label="Reason" name="reason" placeholder="e.g. Monthly allocation" required />
-          </div>
-          <div className="flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>CANCEL</Button>
-            <Button type="submit" disabled={grantMutation.isPending}>
-              {grantMutation.isPending ? 'PROCESSING...' : 'CONFIRM GRANT'}
-            </Button>
-          </div>
-        </form>
+        {modalMode === 'create' && (
+          <form 
+            className="flex flex-col gap-6"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setFormError(null);
+              const formData = new FormData(e.currentTarget);
+              const name = (formData.get('name') as string).trim();
+              if (!name) {
+                setFormError('Name is required');
+                return;
+              }
+              const roles = (formData.get('roles') as string).split(',').map(r => r.trim()).filter(Boolean);
+              createMutation.mutate({ name, roles: roles.length ? roles : ['general-reviewer'] });
+            }}
+          >
+            {formError && (
+              <div className="p-3 bg-noc-rose/10 border border-noc-rose/30 rounded-xl">
+                <p className="text-xs text-noc-rose font-bold">{formError}</p>
+              </div>
+            )}
+            <Input label="Name" name="name" placeholder="e.g. RevivedBigocb" required />
+            <Input label="Roles (comma-separated)" name="roles" placeholder="e.g. general-reviewer, code-reviewer" />
+            <div className="flex justify-end gap-3">
+              <Button variant="secondary" onClick={() => { setIsModalOpen(false); setModalMode('view'); }}>CANCEL</Button>
+              <Button type="submit" disabled={createMutation.isPending}>
+                {createMutation.isPending ? 'CREATING...' : 'CREATE PRINCIPAL'}
+              </Button>
+            </div>
+          </form>
+        )}
+
+        {modalMode === 'grant' && activePrincipal && (
+          <form 
+            className="flex flex-col gap-6"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              grantMutation.mutate({ 
+                id: activePrincipal.id, 
+                amount: parseFloat(formData.get('amount') as string), 
+                reason: formData.get('reason') as string 
+              });
+            }}
+          >
+            <div className="grid grid-cols-1 gap-4">
+              <Input label="Amount to Grant" name="amount" type="number" step="0.01" required />
+              <Input label="Reason" name="reason" placeholder="e.g. Monthly allocation" required />
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="secondary" onClick={() => { setIsModalOpen(false); setModalMode('view'); }}>CANCEL</Button>
+              <Button type="submit" disabled={grantMutation.isPending}>
+                {grantMutation.isPending ? 'PROCESSING...' : 'CONFIRM GRANT'}
+              </Button>
+            </div>
+          </form>
+        )}
       </Modal>
     </div>
   )

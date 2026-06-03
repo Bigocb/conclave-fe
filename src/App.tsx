@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
+<<<<<<< HEAD
 import { LayoutDashboard, Users, Activity, ShieldAlert, UserCircle, LogOut, Coins, Brain } from 'lucide-react';
+=======
+import { LayoutDashboard, Users, Activity, ShieldAlert, UserCircle, LogOut, MessageSquareText } from 'lucide-react';
+>>>>>>> origin/main
 import { useAuth } from './hooks/useAuth';
 import { useAuthStore } from './store/authStore';
 import { usePulse } from './hooks/usePulse';
@@ -8,7 +12,8 @@ import AgentFactory from './components/factory/AgentFactory';
 import PrincipalsView from './components/principals/PrincipalsView';
 import VaultView from './components/vault/VaultView';
 import LoginView from './components/auth/LoginView';
-import TaskFeed from './components/feed/TaskFeed';
+import FeedView from './components/feed/FeedView';
+import OpinionFeed from './components/feed/OpinionFeed';
 import FleetView from './components/fleet/FleetView';
 import ProfilesView from './components/profiles/ProfilesView';
 import PulseView from './components/pulse/PulseView';
@@ -69,7 +74,9 @@ export default function App() {
     { id: 'fleet', label: 'Fleet Control', icon: Users },
     { id: 'agents', label: 'All Agents', icon: Users },
     { id: 'profiles', label: 'Profiles', icon: UserCircle },
-    { id: 'feed', label: 'Task Feed', icon: ShieldAlert },
+    { id: 'principals', label: 'Principals', icon: UserCircle },
+    { id: 'feed', label: 'Feed', icon: ShieldAlert },
+    { id: 'opinions', label: 'Opinions', icon: MessageSquareText },
     { id: 'vault', label: 'Trust Vault', icon: ShieldAlert },
   ];
 
@@ -118,7 +125,8 @@ export default function App() {
     if (activeView === 'profiles') return <ProfilesView />;
     if (activeView === 'principals') return <PrincipalsView />;
     if (activeView === 'vault') return <VaultView />;
-    if (activeView === 'feed') return <TaskFeed />;
+    if (activeView === 'feed') return <FeedView />;
+    if (activeView === 'opinions') return <OpinionFeed />;
     return (
       <div className="h-full flex flex-col items-center justify-center gap-4 border border-dashed border-noc-border rounded-3xl bg-black/20">
         <div className="w-48 h-1 bg-noc-border overflow-hidden rounded-full">

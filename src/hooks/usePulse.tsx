@@ -94,6 +94,10 @@ export function PulseProvider({ children }: { children: React.ReactNode }) {
           case 'AGENT_REGISTERED':
             queryClient.invalidateQueries({ queryKey: ['agents'] });
             break;
+          case 'OPINION_STATUS_CHANGED':
+          case 'OPINION_NODE_ADDED':
+            queryClient.invalidateQueries({ queryKey: ['opinions'] });
+            break;
         }
       } catch (e) {
         console.error('[Pulse] Failed to parse event data:', e);

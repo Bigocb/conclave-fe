@@ -85,14 +85,63 @@ export interface Review {
   created_at: string;
 }
 
-export interface Memory {
+// ─── Opinion / A2A Types ───────────────────────────────────
+
+export type NodeKind = 'proposal' | 'critique' | 'synthesis' | 'consensus';
+export type EdgeKind = 'critiques' | 'addresses' | 'votes_on' | 'follow_up';
+export type OpinionStatus = 'open' | 'critiquing' | 'synthesizing' | 'voting' | 'consensus_reached' | 'consensus_not_reached' | 'closed';
+
+export interface BlackboardNode {
   id: string;
+  opinion_id: string;
+  agent_id: string;
   principal_id: string;
-  key: string;
-  value: string;
-  category: 'convention' | 'preference' | 'fact' | 'general';
+  kind: NodeKind;
+  status: 'active' | 'superseded' | 'withdrawn';
+  payload: Record<string, any>;
   created_at: string;
-  updated_at: string;
+}
+
+export interface BlackboardEdge {
+  id: string;
+  opinion_id: string;
+  source_node_id: string;
+  target_node_id: string;
+  kind: EdgeKind;
+  created_at: string;
+}
+
+export interface ConsensusResult {
+  reached: boolean;
+  details: {
+    total_votes: number;
+    approved: number;
+    rejected: number;
+    avg_confidence: number;
+    votes: { nodeId: string; approved: boolean; confidence: number }[];
+  };
+}
+
+export interface Opinion {
+  id: string;
+  agent_id: string;
+  principal_id: string;
+  question: string;
+  context: string | null;
+  channel: string;
+  requested_opinions: number;
+  deadline: string | null;
+  metadata: Record<string, any>;
+  status: OpinionStatus;
+  topology: string;
+  budget_spent: number;
+  created_at: string;
+}
+
+export interface OpinionGraph {
+  nodes: BlackboardNode[];
+  edges: BlackboardEdge[];
+  consensus: ConsensusResult;
 }
 
 export interface Org {

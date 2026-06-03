@@ -9,9 +9,11 @@ interface AuthState {
   user: User | null;
   agent: Agent | null;
   principal: Principal | null;
+  selectedPrincipalId: string | null;
   org: Org | null;
   isAuthenticated: boolean;
   setAuth: (token: string, user: User, agent?: Agent | null, principal?: Principal | null, org?: Org | null) => void;
+  setSelectedPrincipal: (principalId: string | null) => void;
   clearAuth: () => void;
 }
 
@@ -20,6 +22,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   agent: null,
   principal: null,
+  selectedPrincipalId: null,
   org: localStorage.getItem(ORG_ID_KEY) ? { id: localStorage.getItem(ORG_ID_KEY)!, name: 'Conclave Org' } as Org : null,
   isAuthenticated: !!localStorage.getItem(TOKEN_KEY),
   
@@ -29,9 +32,13 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ token, user, agent, principal, org, isAuthenticated: true });
   },
   
+  setSelectedPrincipal: (principalId) => {
+    set({ selectedPrincipalId: principalId });
+  },
+  
   clearAuth: () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(ORG_ID_KEY);
-    set({ token: null, user: null, agent: null, principal: null, org: null, isAuthenticated: false });
+    set({ token: null, user: null, agent: null, principal: null, selectedPrincipalId: null, org: null, isAuthenticated: false });
   },
 }));
