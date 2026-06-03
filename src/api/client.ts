@@ -101,4 +101,4 @@ export class ConclaveApiClient {
   }
 }
 
-export const api = new ConclaveApiClient('https://conclave-roan.vercel.app');
+export const api = new ConclaveApiClient('https://conclave-bp4o.onrender.com');
