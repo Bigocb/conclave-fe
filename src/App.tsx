@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react';
-<<<<<<< HEAD
 import { LayoutDashboard, Users, Activity, ShieldAlert, UserCircle, LogOut, Coins, Brain } from 'lucide-react';
-=======
-import { LayoutDashboard, Users, Activity, ShieldAlert, UserCircle, LogOut, MessageSquareText } from 'lucide-react';
->>>>>>> origin/main
 import { useAuth } from './hooks/useAuth';
 import { useAuthStore } from './store/authStore';
 import { usePulse } from './hooks/usePulse';
@@ -76,7 +72,7 @@ export default function App() {
     { id: 'profiles', label: 'Profiles', icon: UserCircle },
     { id: 'principals', label: 'Principals', icon: UserCircle },
     { id: 'feed', label: 'Feed', icon: ShieldAlert },
-    { id: 'opinions', label: 'Opinions', icon: MessageSquareText },
+    { id: 'opinions', label: 'Opinions', icon: Activity },
     { id: 'vault', label: 'Trust Vault', icon: ShieldAlert },
   ];
 
