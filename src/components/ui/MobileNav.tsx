@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, Users, Cpu, ShieldAlert, ClipboardList, Activity, UserCircle, MessageSquareText, MoreHorizontal, X } from 'lucide-react';
+import { Home, Users, Cpu, ShieldAlert, ClipboardList, Activity, UserCircle, MessageSquareText, Brain, MoreHorizontal, X } from 'lucide-react';
 
 interface MobileNavProps {
   currentView: string;
@@ -8,7 +8,7 @@ interface MobileNavProps {
 
 const primaryItems = [
   { id: 'dashboard', label: 'Home', icon: Home },
-  { id: 'agents', label: 'Agents', icon: Users },
+  { id: 'memory', label: 'Memory', icon: Brain },
   { id: 'fleet', label: 'Fleet', icon: Cpu },
   { id: 'feed', label: 'Tasks', icon: ClipboardList },
   { id: 'more', label: 'More', icon: MoreHorizontal },
@@ -16,9 +16,11 @@ const primaryItems = [
 
 const drawerItems = [
   { id: 'pulse', label: 'Live Pulse', icon: Activity },
+  { id: 'agents', label: 'All Agents', icon: Users },
+  { id: 'principals', label: 'Principals', icon: UserCircle },
   { id: 'profiles', label: 'Profiles', icon: UserCircle },
   { id: 'opinions', label: 'Opinions', icon: MessageSquareText },
-  { id: 'vault', label: 'Vault', icon: ShieldAlert },
+  { id: 'vault', label: 'Trust Vault', icon: ShieldAlert },
 ];
 
 export function MobileNav({ currentView, setView }: MobileNavProps) {
