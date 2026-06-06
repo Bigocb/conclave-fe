@@ -148,14 +148,6 @@ export default function OpinionFeed() {
     }
   });
 
-  const grantBudgetMutation = useMutation({
-    mutationFn: (amount: number) => api.post(`/v1/principals/${selectedPrincipalId}/budget/grant`, { amount, reason: 'manual grant from UI' }),
-    onSuccess: () => {
-      setAskError(null);
-      queryClient.invalidateQueries({ queryKey: ['principals'] });
-    }
-  });
-
   const openDetail = (opinion: Opinion) => {
     setSelectedOpinion(opinion);
     setIsDetailOpen(true);
