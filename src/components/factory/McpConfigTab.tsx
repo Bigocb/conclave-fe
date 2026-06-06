@@ -125,15 +125,15 @@ export default function McpConfigTab({ agent }: Props) {
     },
   });
 
-  const effectiveUrl = customUrl.trim() || data?.api_url || '';
-  const displayUrl = customUrl || data?.api_url || '';
+  const effectiveUrl = customUrl.trim() || api.baseUrl;
+  const displayUrl = customUrl || api.baseUrl;
 
   // Rewrite all configs whenever effectiveUrl changes
   const rewrittenConfigs = useMemo(() => {
     if (!data || !effectiveUrl) return null;
     return data.configs.map((host) => ({
       ...host,
-      config: effectiveUrl !== data.api_url
+      config: effectiveUrl !== api.baseUrl
         ? rewriteServerUrl(host.config, effectiveUrl)
         : host.config,
     }));
@@ -192,21 +192,21 @@ export default function McpConfigTab({ agent }: Props) {
             value={displayUrl}
             onChange={(e) => setCustomUrl(e.target.value)}
             className="bg-transparent text-xs mono text-noc-text1 flex-1 focus:outline-none border-none p-0"
-            placeholder={data.api_url}
+            placeholder={api.baseUrl}
           />
           {customUrl && (
             <button
               onClick={() => setCustomUrl('')}
               className="text-[10px] mono text-noc-text3 hover:text-noc-text1 transition-colors shrink-0"
             >
-              Reset
+              Reset to default
             </button>
           )}
         </div>
         <p className="text-[9px] mono text-noc-text4">
           {customUrl
-            ? `Using custom API URL — all configs updated`
-            : `Auto-detected from deployment — ${data.api_url}`}
+            ? `Using custom URL — configs use ${effectiveUrl}`
+            : `Using frontend's API URL — ${api.baseUrl}`}
         </p>
       </div>
 

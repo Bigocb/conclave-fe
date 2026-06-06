@@ -3,10 +3,12 @@ import type { AxiosInstance } from 'axios';
 import type { ConclaveResponse } from '../types/api';
 
 export class ConclaveApiClient {
-  instance: AxiosInstance;
+  public readonly baseUrl: string;
+  private instance: AxiosInstance;
   private currentOrgId: string | null = null;
 
   constructor(baseUrl: string) {
+    this.baseUrl = baseUrl;
     this.instance = axios.create({
       baseURL: baseUrl,
       headers: { 'Content-Type': 'application/json' }
