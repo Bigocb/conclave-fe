@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
 import type { Agent } from '../../types/api';
-import { Card, Input, Button, Modal } from '../ui/core';
-import { Plus, Trash2, Edit3 } from 'lucide-react';
+import { Card, Button, Input, Modal } from '../ui/core';
+import { Plus, Trash2, Info } from 'lucide-react';
+import AgentDetailModal from './AgentDetailModal';
 
 export default function AgentFactory() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editAgent, setEditAgent] = useState<Agent | null>(null);
+  const [detailAgent, setDetailAgent] = useState<Agent | null>(null);
 
   const { data: agents, isLoading } = useQuery({
     queryKey: ['agents'],
@@ -76,10 +78,10 @@ export default function AgentFactory() {
                 <div className="flex gap-2">
                   <Button 
                     variant="secondary" 
-                    onClick={() => { setEditAgent(agent); setIsModalOpen(true); }}
+                    onClick={() => setDetailAgent(agent)}
                     className="p-2"
                   >
-                    <Edit3 size={14} />
+                    <Info size={14} />
                   </Button>
                   <Button 
                     variant="danger" 
@@ -111,10 +113,17 @@ export default function AgentFactory() {
         </div>
       )}
 
+      {/* Agent Detail Modal */}
+      <AgentDetailModal
+        agent={detailAgent}
+        isOpen={!!detailAgent}
+        onClose={() => setDetailAgent(null)}
+      />
+
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
-        title={editAgent ? "Modify Agent Node" : "Provision New Agent"}
+        title="Provision New Agent"
       >
         <form 
           className="grid grid-cols-2 gap-6"
