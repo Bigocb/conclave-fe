@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
 import type { Agent } from '../../types/api';
-import { Modal, Card, Button } from '../ui/core';
-import { Info, Plug, Edit3 } from 'lucide-react';
+import { Modal, Button } from '../ui/core';
+import { Info, Plug } from 'lucide-react';
 import McpConfigTab from './McpConfigTab';
 
 interface Props {
