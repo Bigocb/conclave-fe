@@ -128,14 +128,12 @@ export default function McpConfigTab({ agent }: Props) {
   const effectiveUrl = customUrl.trim() || api.baseUrl;
   const displayUrl = customUrl || api.baseUrl;
 
-  // Rewrite all configs whenever effectiveUrl changes
+  // Rewrite all configs to use the effective URL (backend may have localhost)
   const rewrittenConfigs = useMemo(() => {
     if (!data || !effectiveUrl) return null;
     return data.configs.map((host) => ({
       ...host,
-      config: effectiveUrl !== api.baseUrl
-        ? rewriteServerUrl(host.config, effectiveUrl)
-        : host.config,
+      config: rewriteServerUrl(host.config, effectiveUrl),
     }));
   }, [data, effectiveUrl]);
 
