@@ -3,8 +3,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
 import type { Agent } from '../../types/api';
 import { Modal, Button } from '../ui/core';
-import { Info, Plug } from 'lucide-react';
+import { Info, Plug, FileText } from 'lucide-react';
 import McpConfigTab from './McpConfigTab';
+import DetailsTab from './DetailsTab';
 
 interface Props {
   agent: Agent | null;
@@ -12,10 +13,11 @@ interface Props {
   onClose: () => void;
 }
 
-type TabId = 'overview' | 'mcp';
+type TabId = 'overview' | 'details' | 'mcp';
 
 const tabs: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: 'overview', label: 'Overview', icon: Info },
+  { id: 'details', label: 'Details', icon: FileText },
   { id: 'mcp', label: 'MCP Config', icon: Plug },
 ];
 
@@ -114,6 +116,8 @@ export default function AgentDetailModal({ agent, isOpen, onClose }: Props) {
           </div>
         </form>
       )}
+
+      {activeTab === 'details' && <DetailsTab agent={agent} />}
 
       {activeTab === 'mcp' && <McpConfigTab agent={agent} />}
     </Modal>

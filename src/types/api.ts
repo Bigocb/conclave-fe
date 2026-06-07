@@ -37,6 +37,16 @@ export interface Agent {
   status: 'active' | 'decommissioned';
   token?: string;
   created_at: string;
+  principal?: {
+    id: string;
+    name: string;
+    roles: string[];
+  };
+  org?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
 }
 
 export interface Principal {
