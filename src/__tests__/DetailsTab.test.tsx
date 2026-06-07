@@ -35,11 +35,25 @@ const mockAgent: Agent = {
   },
 };
 
+let statsResponse = { review_count: 0, opinion_count: 0 };
+let vaultResponse: { vault_key: string | null } = { vault_key: null };
+let vaultReject = false;
+
 beforeEach(() => {
   vi.clearAllMocks();
-  // Default: resolve with empty/null data so .then() never fails
-  vi.mocked(api.post).mockResolvedValue({ vault_key: null });
-  vi.mocked(api.get).mockResolvedValue({ review_count: 0, opinion_count: 0 });
+  statsResponse = { review_count: 0, opinion_count: 0 };
+  vaultResponse = { vault_key: null };
+  vaultReject = false;
+
+  vi.mocked(api.post).mockImplementation(() => {
+    if (vaultReject) return Promise.reject(new Error('Network error'));
+    return Promise.resolve(vaultResponse);
+  });
+
+  vi.mocked(api.get).mockImplementation((url: any) => {
+    if (String(url).includes('/stats')) return Promise.resolve(statsResponse);
+    return Promise.resolve(mockAgent);
+  });
 });
 
 describe('DetailsTab', () => {
@@ -143,8 +157,8 @@ describe('DetailsTab', () => {
   });
 
   it('resolves vault key on mount and shows it with copy button', async () => {
-    vi.mocked(api.post).mockResolvedValue({ vault_key: 'sk-abc123' });
-    vi.mocked(api.get).mockResolvedValue({ review_count: 5, opinion_count: 2 });
+    vaultResponse = { vault_key: 'sk-abc123' };
+    statsResponse = { review_count: 5, opinion_count: 2 };
 
     render(<DetailsTab agent={mockAgent} />);
 
@@ -159,9 +173,6 @@ describe('DetailsTab', () => {
   });
 
   it('shows "No API key" message when vault key resolves empty', async () => {
-    vi.mocked(api.post).mockResolvedValue({ vault_key: null });
-    vi.mocked(api.get).mockResolvedValue({ review_count: 0, opinion_count: 0 });
-
     render(<DetailsTab agent={mockAgent} />);
 
     await waitFor(() => {
@@ -170,8 +181,7 @@ describe('DetailsTab', () => {
   });
 
   it('shows error message when vault key resolve fails', async () => {
-    vi.mocked(api.post).mockRejectedValue(new Error('Network error'));
-    vi.mocked(api.get).mockResolvedValue({ review_count: 0, opinion_count: 0 });
+    vaultReject = true;
 
     render(<DetailsTab agent={mockAgent} />);
 
@@ -181,8 +191,7 @@ describe('DetailsTab', () => {
   });
 
   it('displays stats from API', async () => {
-    vi.mocked(api.post).mockResolvedValue({ vault_key: null });
-    vi.mocked(api.get).mockResolvedValue({ review_count: 42, opinion_count: 7 });
+    statsResponse = { review_count: 42, opinion_count: 7 };
 
     render(<DetailsTab agent={mockAgent} />);
 
@@ -195,8 +204,7 @@ describe('DetailsTab', () => {
   });
 
   it('calls resolve-key with the correct agent ID', async () => {
-    vi.mocked(api.post).mockResolvedValue({ vault_key: 'sk-xyz' });
-    vi.mocked(api.get).mockResolvedValue({ review_count: 0, opinion_count: 0 });
+    vaultResponse = { vault_key: 'sk-xyz' };
 
     render(<DetailsTab agent={mockAgent} />);
 

@@ -12,6 +12,7 @@ interface AgentStats {
 }
 
 export default function DetailsTab({ agent }: Props) {
+  const [fetchedAgent, setFetchedAgent] = useState<Agent | null>(null);
   const [vaultKey, setVaultKey] = useState<string | null | undefined>(undefined);
   const [vaultLoading, setVaultLoading] = useState(true);
   const [vaultError, setVaultError] = useState(false);
@@ -20,6 +21,13 @@ export default function DetailsTab({ agent }: Props) {
   const [copiedPrincipal, setCopiedPrincipal] = useState(false);
   const [copiedOrg, setCopiedOrg] = useState(false);
   const [copiedKey, setCopiedKey] = useState(false);
+
+  useEffect(() => {
+    // Fetch enriched agent data (principal + org fields come from GET /:id, not from list)
+    api.get<Agent>(`/v1/agents/${agent.id}`)
+      .then(setFetchedAgent)
+      .catch(() => {});
+  }, [agent.id]);
 
   useEffect(() => {
     api.post<{ vault_key?: string }>(`/v1/agents/${agent.id}/resolve-key`, { fallback_to_provider: true })
@@ -38,6 +46,8 @@ export default function DetailsTab({ agent }: Props) {
       .then(setStats)
       .catch(() => {});
   }, [agent.id]);
+
+  const a = fetchedAgent ?? agent;
 
   const copyToClipboard = async (text: string, setter: (v: boolean) => void) => {
     try {
@@ -70,10 +80,10 @@ export default function DetailsTab({ agent }: Props) {
       <div className="col-span-2">
         {sectionTitle('🔑 Agent Token')}
         {section(
-          agent.token ? (
+          a.token ? (
             <div className="flex items-center justify-between gap-2">
-              <span className="text-xs mono text-noc-text2 font-mono break-all flex-1">{agent.token}</span>
-              {copyButton(agent.token, copiedToken, setCopiedToken)}
+              <span className="text-xs mono text-noc-text2 font-mono break-all flex-1">{a.token}</span>
+              {copyButton(a.token, copiedToken, setCopiedToken)}
             </div>
           ) : (
             <p className="text-xs mono text-noc-text3">Token not available in cache — regenerate</p>
@@ -86,18 +96,18 @@ export default function DetailsTab({ agent }: Props) {
         {sectionTitle('👤 Principal')}
         {section(
           <div className="space-y-2">
-            {agent.principal ? (
+            {a.principal ? (
               <>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs mono text-noc-text2 font-bold">{agent.principal.name}</span>
-                  {copyButton(agent.principal.id, copiedPrincipal, setCopiedPrincipal)}
+                  <span className="text-xs mono text-noc-text2 font-bold">{a.principal.name}</span>
+                  {copyButton(a.principal.id, copiedPrincipal, setCopiedPrincipal)}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] mono text-noc-text3">ID:</span>
-                  <span className="text-[10px] mono text-noc-text2 font-mono truncate">{agent.principal.id}</span>
+                  <span className="text-[10px] mono text-noc-text2 font-mono truncate">{a.principal.id}</span>
                 </div>
                 <div className="flex flex-wrap gap-1.5 mt-2">
-                  {agent.principal.roles.map(role => (
+                  {a.principal.roles.map(role => (
                     <span
                       key={role}
                       className="px-2 py-0.5 rounded-full text-[10px] mono bg-noc-bg border border-noc-border text-noc-text2"
@@ -119,19 +129,19 @@ export default function DetailsTab({ agent }: Props) {
         {sectionTitle('🏢 Organization')}
         {section(
           <div className="space-y-2">
-            {agent.org ? (
+            {a.org ? (
               <>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs mono text-noc-text2 font-bold">{agent.org.name}</span>
-                  {copyButton(agent.org.id, copiedOrg, setCopiedOrg)}
+                  <span className="text-xs mono text-noc-text2 font-bold">{a.org.name}</span>
+                  {copyButton(a.org.id, copiedOrg, setCopiedOrg)}
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] mono text-noc-text3">Slug:</span>
-                  <span className="text-[10px] mono text-noc-text2">{agent.org.slug}</span>
+                  <span className="text-[10px] mono text-noc-text2">{a.org.slug}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] mono text-noc-text3">ID:</span>
-                  <span className="text-[10px] mono text-noc-text2 font-mono">{agent.org.id}</span>
+                  <span className="text-[10px] mono text-noc-text2 font-mono">{a.org.id}</span>
                 </div>
               </>
             ) : (
@@ -181,12 +191,12 @@ export default function DetailsTab({ agent }: Props) {
                 <p className="text-[10px] mono text-noc-text3 uppercase">Status</p>
                 <p className="text-xs mono text-noc-green flex items-center gap-1">
                   <span className="w-1.5 h-1.5 bg-noc-green rounded-full" />
-                  {agent.status.toUpperCase()}
+                  {a.status.toUpperCase()}
                 </p>
               </div>
               <div className="col-span-2">
                 <p className="text-[10px] mono text-noc-text3 uppercase">Created</p>
-                <p className="text-xs mono text-noc-text2">{new Date(agent.created_at).toLocaleDateString()}</p>
+                <p className="text-xs mono text-noc-text2">{new Date(a.created_at).toLocaleDateString()}</p>
               </div>
             </div>
           ) : (
