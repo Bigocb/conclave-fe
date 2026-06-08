@@ -43,10 +43,11 @@ interface InputProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   step?: string;
   required?: boolean;
+  disabled?: boolean;
   className?: string;
 }
 
-export const Input = ({ label, name, type = 'text', placeholder, defaultValue, value, onChange, step, required, className = '' }: InputProps) => (
+export const Input = ({ label, name, type = 'text', placeholder, defaultValue, value, onChange, step, required, disabled, className = '' }: InputProps) => (
   <div className="flex flex-col gap-1.5">
     <label className="text-xs mono text-noc-text3 uppercase tracking-wider">{label}</label>
     <input 
@@ -58,7 +59,8 @@ export const Input = ({ label, name, type = 'text', placeholder, defaultValue, v
       onChange={onChange}
       step={step}
       required={required}
-      className={`bg-noc-bg3 border border-noc-border p-2 text-xs mono text-noc-text1 focus:outline-none focus:border-noc-green transition-colors w-full ${className}`}
+      disabled={disabled}
+      className={`bg-noc-bg3 border border-noc-border p-2 text-xs mono text-noc-text1 focus:outline-none focus:border-noc-green transition-colors w-full disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     />
   </div>
 );

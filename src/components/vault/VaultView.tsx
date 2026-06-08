@@ -7,6 +7,7 @@ import { Key, ShieldCheck, Plus, Trash2, Edit3 } from 'lucide-react';
 export default function VaultView() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingKey, setEditingKey] = useState<{ id: string; provider: string } | null>(null);
 
   const { data: keys, isLoading, error } = useQuery({
     queryKey: ['vault'],
@@ -21,8 +22,19 @@ export default function VaultView() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vault'] });
       setIsModalOpen(false);
+      setEditingKey(null);
     }
   });
+
+  const handleEdit = (key: any) => {
+    setEditingKey({ id: key.id, provider: key.provider });
+    setIsModalOpen(true);
+  };
+
+  const handleAddNew = () => {
+    setEditingKey(null);
+    setIsModalOpen(true);
+  };
 
   if (error) {
     return <div className="p-8 text-noc-rose mono text-xs uppercase font-bold">Vault Access Error: {error.message}</div>;
@@ -36,7 +48,7 @@ export default function VaultView() {
           <p className="text-xs mono text-noc-text2">Secure storage for provider API keys and secrets</p>
         </div>
         <Button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleAddNew}
           className="flex items-center gap-2"
         >
           <Plus size={16} /> 
@@ -62,7 +74,9 @@ export default function VaultView() {
                     <p className="text-[10px] mono text-noc-text3">ID: {key.id ? String(key.id).slice(0,8) : 'n/a'}...</p>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="secondary" className="p-2"><Edit3 size={14} /></Button>
+                    <Button variant="secondary" className="p-2" onClick={() => handleEdit(key)}>
+                      <Edit3 size={14} />
+                    </Button>
                   </div>
                 </div>
                 
@@ -94,8 +108,8 @@ export default function VaultView() {
 
       <Modal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title="Store Secret Key"
+        onClose={() => { setIsModalOpen(false); setEditingKey(null); }} 
+        title={editingKey ? `Update Key: ${editingKey.provider}` : "Store Secret Key"}
       >
         <form 
           className="flex flex-col gap-6"
@@ -109,13 +123,25 @@ export default function VaultView() {
           }}
         >
           <div className="grid grid-cols-1 gap-4">
-            <Input label="Provider Name" name="provider" placeholder="e.g. openai, anthropic" required />
-            <Input label="API Key / Secret" name="key" type="password" required />
+            <Input 
+              label="Provider Name" 
+              name="provider" 
+              placeholder="e.g. openai, anthropic" 
+              defaultValue={editingKey?.provider || ''}
+              disabled={!!editingKey}
+              required 
+            />
+            <Input 
+              label={editingKey ? "New API Key / Secret (replaces current)" : "API Key / Secret"} 
+              name="key" 
+              type="password" 
+              required={!editingKey}
+            />
           </div>
           <div className="flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => setIsModalOpen(false)}>CANCEL</Button>
+            <Button variant="secondary" onClick={() => { setIsModalOpen(false); setEditingKey(null); }}>CANCEL</Button>
             <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? 'ENCRYPTING...' : 'SAVE TO VAULT'}
+              {saveMutation.isPending ? 'ENCRYPTING...' : editingKey ? 'UPDATE KEY' : 'SAVE TO VAULT'}
             </Button>
           </div>
         </form>
