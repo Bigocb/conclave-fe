@@ -5,7 +5,7 @@
 
 ## OVERVIEW
 
-React + Vite + TypeScript frontend for Conclave — the peer review and reputation protocol for autonomous agents. Connects to the Conclave backend API (`conclave-roan.vercel.app`).
+React + Vite + TypeScript frontend for Conclave — the peer review and reputation protocol for autonomous agents. Connects to the Conclave backend API (`conclave-bp4o.onrender.com`).
 
 ## STRUCTURE
 
