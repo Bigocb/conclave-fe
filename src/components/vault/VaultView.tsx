@@ -8,6 +8,9 @@ export default function VaultView() {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingKey, setEditingKey] = useState<{ id: string; provider: string } | null>(null);
+  const [provider, setProvider] = useState('');
+  const [secretKey, setSecretKey] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
 
   const { data: keys, isLoading, error } = useQuery({
     queryKey: ['vault'],
@@ -18,22 +21,64 @@ export default function VaultView() {
   });
 
   const saveMutation = useMutation({
-    mutationFn: (data: any) => api.post('/v1/vault/key', data),
+    mutationFn: (data: { provider: string; key: string }) => api.post('/v1/vault/key', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vault'] });
       setIsModalOpen(false);
       setEditingKey(null);
+      setProvider('');
+      setSecretKey('');
+      setFormError(null);
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.error || err?.message || 'Failed to save key';
+      setFormError(msg);
     }
   });
 
   const handleEdit = (key: any) => {
     setEditingKey({ id: key.id, provider: key.provider });
+    setProvider(key.provider || '');
+    setSecretKey('');
+    setFormError(null);
     setIsModalOpen(true);
   };
 
   const handleAddNew = () => {
     setEditingKey(null);
+    setProvider('');
+    setSecretKey('');
+    setFormError(null);
     setIsModalOpen(true);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+
+    if (!provider.trim()) {
+      setFormError('Provider name is required');
+      return;
+    }
+    if (!secretKey.trim() && !editingKey) {
+      setFormError('API key is required');
+      return;
+    }
+
+    const payload: { provider: string; key: string } = {
+      provider: provider.trim(),
+      key: secretKey.trim(),
+    };
+
+    saveMutation.mutate(payload);
+  };
+
+  const handleClose = () => {
+    setIsModalOpen(false);
+    setEditingKey(null);
+    setProvider('');
+    setSecretKey('');
+    setFormError(null);
   };
 
   if (error) {
@@ -108,26 +153,25 @@ export default function VaultView() {
 
       <Modal 
         isOpen={isModalOpen} 
-        onClose={() => { setIsModalOpen(false); setEditingKey(null); }} 
+        onClose={handleClose} 
         title={editingKey ? `Update Key: ${editingKey.provider}` : "Store Secret Key"}
       >
+        {formError && (
+          <div className="mb-4 p-3 bg-noc-rose/10 border border-noc-rose/30 rounded-xl text-noc-rose text-xs mono">
+            {formError}
+          </div>
+        )}
         <form 
           className="flex flex-col gap-6"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const formData = new FormData(e.currentTarget);
-            saveMutation.mutate({ 
-              provider: formData.get('provider') as string, 
-              key: formData.get('key') as string 
-            });
-          }}
+          onSubmit={handleSubmit}
         >
           <div className="grid grid-cols-1 gap-4">
             <Input 
               label="Provider Name" 
               name="provider" 
               placeholder="e.g. openai, anthropic" 
-              defaultValue={editingKey?.provider || ''}
+              value={provider}
+              onChange={(e) => setProvider(e.target.value)}
               disabled={!!editingKey}
               required 
             />
@@ -135,11 +179,13 @@ export default function VaultView() {
               label={editingKey ? "New API Key / Secret (replaces current)" : "API Key / Secret"} 
               name="key" 
               type="password" 
+              value={secretKey}
+              onChange={(e) => setSecretKey(e.target.value)}
               required={!editingKey}
             />
           </div>
           <div className="flex justify-end gap-3">
-            <Button variant="secondary" onClick={() => { setIsModalOpen(false); setEditingKey(null); }}>CANCEL</Button>
+            <Button variant="secondary" type="button" onClick={handleClose}>CANCEL</Button>
             <Button type="submit" disabled={saveMutation.isPending}>
               {saveMutation.isPending ? 'ENCRYPTING...' : editingKey ? 'UPDATE KEY' : 'SAVE TO VAULT'}
             </Button>
