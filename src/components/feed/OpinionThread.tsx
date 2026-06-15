@@ -54,31 +54,56 @@ function StatusBanner({ status, nodeCount }: { status: OpinionStatus; nodeCount:
   );
 }
 
+function ConcernList({ items }: { items: string[] }) {
+  if (!items?.length) return null;
+  return (
+    <ul className="mt-2 space-y-1">
+      {items.map((item, i) => (
+        <li key={i} className="text-[10px] text-noc-text2 flex gap-1.5">
+          <span className="text-noc-rose shrink-0">•</span>
+          <span className="break-words">{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function SuggestionList({ items }: { items: string[] }) {
+  if (!items?.length) return null;
+  return (
+    <ul className="mt-1.5 space-y-1">
+      {items.map((item, i) => (
+        <li key={i} className="text-[10px] text-noc-text2 flex gap-1.5">
+          <span className="text-noc-green shrink-0">→</span>
+          <span className="break-words">{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function CritiqueDetail({ payload }: { payload: Record<string, any> }) {
   return (
     <>
       <div className="mt-2 flex flex-wrap gap-1.5">
-        {payload.severity && (
-          <span className="text-[9px] px-1.5 py-0.5 rounded bg-noc-rose/10 text-noc-rose border border-noc-rose/20">
-            {payload.severity}
-          </span>
-        )}
-        {payload.flaw_count && (
-          <span className="text-[9px] px-1.5 py-0.5 rounded bg-noc-amber/10 text-noc-amber border border-noc-amber/20">
-            {payload.flaw_count} flaws
-          </span>
-        )}
-        {payload.confidence && !payload.approved && (
+        {payload.confidence !== undefined && !payload.approved && (
           <span className="text-[9px] px-1.5 py-0.5 rounded bg-noc-cyan/10 text-noc-cyan border border-noc-cyan/20">
-            {(payload.confidence * 100).toFixed(0)}% confidence
+            {(typeof payload.confidence === 'number' ? payload.confidence * 100 : parseInt(payload.confidence, 10)).toFixed(0)}% confidence
+          </span>
+        )}
+        {payload.is_follow_up && (
+          <span className="text-[9px] px-1.5 py-0.5 rounded bg-noc-purple/10 text-noc-purple border border-noc-purple/20">
+            follow-up
           </span>
         )}
       </div>
-      {payload.recommendation && (
+      {payload.reasoning && (
         <div className="mt-2 text-xs text-noc-text2 italic border-l-2 border-noc-text3/30 pl-3">
-          {payload.recommendation}
+          {payload.reasoning}
         </div>
       )}
+      <ConcernList items={payload.concerns} />
+      <SuggestionList items={payload.suggestions} />
     </>
   );
 }
@@ -121,6 +146,10 @@ function nodeMessage(node: BlackboardNode): string {
   if (p.message) return p.message;
   if (p.question) return p.question;
   if (p.response) return p.response;
+  if (p.summary) return p.summary;
+  if (p.reasoning) return p.reasoning;
+  if (Array.isArray(p.concerns) && p.concerns.length > 0) return p.concerns.join('\n• ');
+  if (Array.isArray(p.suggestions) && p.suggestions.length > 0) return p.suggestions.join('\n→ ');
   if (typeof p.approved === 'boolean') return p.approved ? 'Approved' : 'Rejected';
   // Log unrecognized shapes to catch API contract drift
   if (Object.keys(p).length > 0) {

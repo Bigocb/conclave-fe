@@ -101,10 +101,21 @@ function NodeCard({
 
       {/* Structured summary */}
       {node.kind === 'critique' && (
-        <div className="flex flex-wrap gap-1 mt-1">
-          {p.severity && <SeverityBadge value={p.severity} />}
-          {p.flaw_count && <StatBadge label={`${p.flaw_count} flaws`} color="noc-amber" />}
-          {p.confidence && <StatBadge label={`${(p.confidence * 100).toFixed(0)}%`} color="noc-cyan" />}
+        <div className="flex flex-col gap-1 mt-1">
+          <div className="flex flex-wrap gap-1">
+            {p.confidence !== undefined && <StatBadge label={`${(typeof p.confidence === 'number' ? p.confidence * 100 : parseInt(p.confidence, 10)).toFixed(0)}%`} color="noc-cyan" />}
+            {p.is_follow_up && <StatBadge label="follow-up" color="noc-purple" />}
+          </div>
+          {p.reasoning && (
+            <div className="text-[10px] text-noc-text2 italic line-clamp-2">
+              {p.reasoning}
+            </div>
+          )}
+          {Array.isArray(p.concerns) && p.concerns.length > 0 && (
+            <div className="text-[9px] text-noc-text3">
+              {p.concerns.length} concern{p.concerns.length !== 1 ? 's' : ''}
+            </div>
+          )}
         </div>
       )}
 
@@ -137,17 +148,6 @@ function NodeCard({
       )}
     </div>
   );
-}
-
-function SeverityBadge({ value }: { value: string }) {
-  const sevColor: Record<string, string> = {
-    critical: 'bg-noc-rose/10 text-noc-rose border-noc-rose/30',
-    high: 'bg-noc-rose/10 text-noc-rose border-noc-rose/30',
-    medium: 'bg-noc-amber/10 text-noc-amber border-noc-amber/30',
-    low: 'bg-noc-cyan/10 text-noc-cyan border-noc-cyan/30',
-  };
-  const cls = sevColor[value.toLowerCase()] || sevColor.medium;
-  return <span className={`text-[8px] px-1.5 py-0.5 rounded-full border ${cls}`}>{value}</span>;
 }
 
 function StatBadge({ label, color }: { label: string; color: string }) {
